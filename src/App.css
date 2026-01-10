@@ -36,3 +36,56 @@
     transform: rotate(360deg);
   }
 }
+
+/* Constrained/simple forms (use class "constrained-form") */
+.constrained-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 1em;
+}
+
+/* Full width forms (use class "full-width-form") to override the constrained rules */
+.full-width-form {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* spacing between stacked divs inside forms */
+.constrained-form div + div,
+.full-width-form div + div {
+  margin-top: 1em;
+}
+
+label {
+  display: block;
+  margin-bottom: .5em;
+  color: #333333;
+}
+
+input, textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: .5em;
+  font-size: 1em;
+}
+
+button {
+  padding: 0.7em;
+  color: #fff;
+  background-color: #007BFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
