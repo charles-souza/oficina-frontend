@@ -3,527 +3,311 @@ import {
   Box,
   Typography,
   Paper,
-  Card,
-  CardContent,
+  Grid,
   CircularProgress,
-  Fade,
-  Grow,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { clienteService } from '../services/clienteService';
-import { veiculoService } from '../services/veiculoService';
-import { orcamentoService } from '../services/orcamentoService';
-import { reciboService } from '../services/reciboService';
-import { servicoService } from '../services/servicoService';
-import PeopleIcon from '@mui/icons-material/People';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DescriptionIcon from '@mui/icons-material/Description';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts';
+import {
+  People,
+  DirectionsCar,
+  Description,
+  Assignment,
+  TrendingUp,
+  CheckCircle,
+  HourglassEmpty,
+  Build,
+} from '@mui/icons-material';
+import MetricCard from '../components/dashboard/MetricCard';
+import ChartCard from '../components/dashboard/ChartCard';
+import dashboardService, { DashboardMetrics } from '../services/dashboardService';
+import { useNotification } from '../contexts/NotificationContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
-const DashboardPage = () => {
-  const [totais, setTotais] = useState({
-    clientes: 0,
-    veiculos: 0,
-    orcamentos: 0,
-    recibos: 0,
-    servicos: 0,
-  });
+const DashboardPage: React.FC = () => {
+  usePageTitle('Dashboard');
+
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { showNotification } = useNotification();
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const [clientesData, veiculosData, orcamentosData, recibosData, servicosData] = await Promise.allSettled([
-          clienteService.getAll(0, 1),
-          veiculoService.getAll(0, 1),
-          orcamentoService.getAll(),
-          reciboService.getAll(),
-          servicoService.getAll(),
-        ]);
-
-        setTotais({
-          clientes:
-            clientesData.status === 'fulfilled'
-              ? clientesData.value?.totalElements || clientesData.value?.total || 0
-              : 0,
-          veiculos:
-            veiculosData.status === 'fulfilled'
-              ? veiculosData.value?.totalElements ||
-                veiculosData.value?.total ||
-                (Array.isArray(veiculosData.value) ? veiculosData.value.length : 0)
-              : 0,
-          orcamentos:
-            orcamentosData.status === 'fulfilled' && Array.isArray(orcamentosData.value)
-              ? orcamentosData.value.length
-              : 0,
-          recibos:
-            recibosData.status === 'fulfilled'
-              ? recibosData.value?.totalElements ||
-                recibosData.value?.total ||
-                (Array.isArray(recibosData.value) ? recibosData.value.length : 0)
-              : 0,
-          servicos:
-            servicosData.status === 'fulfilled'
-              ? servicosData.value?.totalElements ||
-                servicosData.value?.total ||
-                (Array.isArray(servicosData.value) ? servicosData.value.length : 0)
-              : 0,
-        });
-      } catch (err) {
-        console.error('Erro ao carregar dashboard:', err);
-        setError('Erro ao carregar dados do dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
+    loadDashboard();
   }, []);
 
-  const cards = [
-    {
-      title: 'Clientes',
-      subtitle: 'Total de clientes cadastrados',
-      value: totais.clientes,
-      icon: PeopleIcon,
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      link: '/clientes',
-    },
-    {
-      title: 'Veículos',
-      subtitle: 'Total de veículos cadastrados',
-      value: totais.veiculos,
-      icon: DirectionsCarIcon,
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      link: '/veiculos',
-    },
-    {
-      title: 'Orçamentos',
-      subtitle: 'Total de orçamentos criados',
-      value: totais.orcamentos,
-      icon: DescriptionIcon,
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      link: '/orcamentos',
-    },
-    {
-      title: 'Recibos',
-      subtitle: 'Total de recibos gerados',
-      value: totais.recibos,
-      icon: ReceiptIcon,
-      gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-      link: '/recibos',
-    },
-    {
-      title: 'Serviços',
-      subtitle: 'Total de serviços cadastrados',
-      value: totais.servicos,
-      icon: HomeRepairServiceIcon,
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-      link: '/servicos',
-    },
+  const loadDashboard = async () => {
+    setLoading(true);
+    try {
+      const data = await dashboardService.getMainMetrics();
+      setMetrics(data);
+    } catch (error) {
+      showNotification('Erro ao carregar dashboard', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+
+  if (!metrics) {
+    return (
+      <Paper sx={{ p: 4, textAlign: 'center' }}>
+        <Typography>Erro ao carregar dados do dashboard</Typography>
+      </Paper>
+    );
+  }
+
+  // Dados para gráfico de pizza - Status das Ordens
+  const statusData = [
+    { name: 'Em Andamento', value: metrics.ordensEmAndamento, color: '#3b82f6' },
+    { name: 'Aguardando Peça', value: metrics.ordensAguardandoPeca, color: '#f59e0b' },
+    { name: 'Prontas', value: metrics.ordensProntas, color: '#10b981' },
+  ].filter((item) => item.value > 0);
+
+  // Dados para gráfico de barras - Resumo Geral
+  const summaryData = [
+    { name: 'Clientes', value: metrics.totalClientes },
+    { name: 'Veículos', value: metrics.totalVeiculos },
+    { name: 'Orçamentos', value: metrics.totalOrcamentos },
+    { name: 'Ordens', value: metrics.totalOrdensServico },
   ];
 
-  return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Fade in timeout={400}>
-        <Box>
-          {/* Hero Header */}
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 4,
-              p: 4,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: '100%',
-                height: '100%',
-                opacity: 0.1,
-                background:
-                  'radial-gradient(circle at top right, white 0%, transparent 50%), radial-gradient(circle at bottom left, white 0%, transparent 50%)',
-              }}
-            />
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
+  };
 
-            <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                <AssessmentIcon sx={{ fontSize: 32 }} />
-                <Typography variant="h3" component="h1" fontWeight={700}>
-                  Dashboard
+  return (
+    <Box>
+      {/* Header */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h4" fontWeight={700} gutterBottom>
+          Dashboard
+        </Typography>
+        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+          Visão geral das operações da oficina
+        </Typography>
+      </Paper>
+
+      {/* Cards de Métricas Principais */}
+      <Grid container spacing={3} mb={3}>
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Clientes"
+            value={metrics.totalClientes}
+            icon={People}
+            color="#667eea"
+            subtitle="Total cadastrado"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Veículos"
+            value={metrics.totalVeiculos}
+            icon={DirectionsCar}
+            color="#06b6d4"
+            subtitle="Total cadastrado"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Orçamentos"
+            value={metrics.totalOrcamentos}
+            icon={Description}
+            color="#8b5cf6"
+            subtitle="Total emitido"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Ordens de Serviço"
+            value={metrics.totalOrdensServico}
+            icon={Assignment}
+            color="#f59e0b"
+            subtitle="Total registrado"
+          />
+        </Grid>
+      </Grid>
+
+      {/* Cards de Status das Ordens */}
+      <Grid container spacing={3} mb={3}>
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Abertas Hoje"
+            value={metrics.ordensAbertasHoje}
+            icon={Build}
+            color="#3b82f6"
+            subtitle="Novas ordens"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Em Andamento"
+            value={metrics.ordensEmAndamento}
+            icon={HourglassEmpty}
+            color="#06b6d4"
+            subtitle="Ordens ativas"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Aguardando Peça"
+            value={metrics.ordensAguardandoPeca}
+            icon={HourglassEmpty}
+            color="#f59e0b"
+            subtitle="Ordens pausadas"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <MetricCard
+            title="Prontas"
+            value={metrics.ordensProntas}
+            icon={CheckCircle}
+            color="#10b981"
+            subtitle="Para entrega"
+          />
+        </Grid>
+      </Grid>
+
+      {/* Gráficos */}
+      <Grid container spacing={3} mb={3}>
+        {/* Gráfico de Status das Ordens */}
+        <Grid item xs={12} md={6}>
+          <ChartCard
+            title="Status das Ordens"
+            subtitle="Distribuição atual das ordens de serviço"
+          >
+            {statusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <Box textAlign="center" py={4}>
+                <Typography color="text.secondary">
+                  Nenhuma ordem de serviço ativa
                 </Typography>
               </Box>
-              <Typography variant="h6" sx={{ opacity: 0.95, fontWeight: 400 }}>
-                Visão geral do seu negócio em tempo real
-              </Typography>
+            )}
+          </ChartCard>
+        </Grid>
 
-              <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
-                <Box
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    borderRadius: 2,
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                >
-                  <Typography variant="caption" sx={{ opacity: 0.9, display: 'block' }}>
-                    Sistema
-                  </Typography>
-                  <Typography variant="body2" fontWeight={600}>
-                    Oficina SaaS
-                  </Typography>
-                </Box>
+        {/* Gráfico de Resumo Geral */}
+        <Grid item xs={12} md={6}>
+          <ChartCard
+            title="Resumo Geral"
+            subtitle="Total de registros por categoria"
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={summaryData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#667eea" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </Grid>
+      </Grid>
 
-                <Box
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    borderRadius: 2,
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                >
-                  <Typography variant="caption" sx={{ opacity: 0.9, display: 'block' }}>
-                    Status
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        backgroundColor: '#4ade80',
-                        animation: 'pulse 2s ease-in-out infinite',
-                        '@keyframes pulse': {
-                          '0%, 100%': { opacity: 1 },
-                          '50%': { opacity: 0.5 },
-                        },
-                      }}
-                    />
-                    <Typography variant="body2" fontWeight={600}>
-                      Online
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
+      {/* Cards de Receita */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
+            <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1 }}>
+              Receita de Orçamentos
+            </Typography>
+            <Typography variant="h4" fontWeight={700}>
+              {formatCurrency(metrics.receitaOrcamentos)}
+            </Typography>
           </Paper>
+        </Grid>
 
-          {/* Metrics Cards */}
-          <Box
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'info.main', color: 'white' }}>
+            <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1 }}>
+              Receita de Ordens
+            </Typography>
+            <Typography variant="h4" fontWeight={700}>
+              {formatCurrency(metrics.receitaOrdensServico)}
+            </Typography>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Paper
             sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(5, 1fr)',
-              },
-              gap: 3,
-              mb: 4,
+              p: 3,
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
             }}
           >
-            {cards.map((card, index) => {
-              const Icon = card.icon;
-              return (
-                <Grow in timeout={600 + index * 100} key={index}>
-                  <Card
-                    component={Link}
-                    to={card.link}
-                    sx={{
-                      height: '100%',
-                      minHeight: 180,
-                      borderRadius: 3,
-                      textDecoration: 'none',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      cursor: 'pointer',
-                      background: card.gradient,
-                      color: 'white',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        width: '100%',
-                        height: '100%',
-                        opacity: 0.1,
-                        background: 'radial-gradient(circle at top right, white 0%, transparent 70%)',
-                      }}
-                    />
-
-                    <CardContent sx={{ position: 'relative', zIndex: 1, p: 3 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          mb: 3,
-                        }}
-                      >
-                        <Box>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              opacity: 0.9,
-                              fontWeight: 500,
-                              letterSpacing: 0.5,
-                              textTransform: 'uppercase',
-                              fontSize: '0.75rem',
-                            }}
-                          >
-                            {card.title}
-                          </Typography>
-                          {card.subtitle && (
-                            <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mt: 0.5 }}>
-                              {card.subtitle}
-                            </Typography>
-                          )}
-                        </Box>
-
-                        <Box
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 2,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: 'rgba(255,255,255,0.2)',
-                            backdropFilter: 'blur(10px)',
-                          }}
-                        >
-                          <Icon sx={{ fontSize: 28 }} />
-                        </Box>
-                      </Box>
-
-                      <Box sx={{ mb: 2 }}>
-                        {loading ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <CircularProgress size={32} sx={{ color: 'white' }} />
-                            <Typography variant="h4" fontWeight={700}>
-                              ...
-                            </Typography>
-                          </Box>
-                        ) : error ? (
-                          <Typography variant="h4" fontWeight={700}>
-                            --
-                          </Typography>
-                        ) : (
-                          <Typography
-                            variant="h3"
-                            fontWeight={700}
-                            sx={{
-                              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
-                              lineHeight: 1,
-                            }}
-                          >
-                            {card.value.toLocaleString('pt-BR')}
-                          </Typography>
-                        )}
-                      </Box>
-
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          pt: 2,
-                          borderTop: '1px solid rgba(255,255,255,0.2)',
-                          opacity: 0.9,
-                        }}
-                      >
-                        <TrendingUpIcon sx={{ fontSize: 16 }} />
-                        <Typography variant="caption" fontWeight={500}>
-                          Total cadastrado
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grow>
-              );
-            })}
-          </Box>
-
-          {/* Quick Stats */}
-          <Fade in timeout={1000}>
-            <Paper
-              elevation={1}
-              sx={{
-                p: 3,
-                borderRadius: 3,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-                <TrendingUpIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-                <Box>
-                  <Typography variant="h6" fontWeight={600}>
-                    Estatísticas Rápidas
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Resumo das operações do sistema
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: 'repeat(2, 1fr)',
-                    sm: 'repeat(4, 1fr)',
-                  },
-                  gap: 3,
-                }}
-              >
-                <Box
-                  sx={{
-                    p: 2.5,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: 'rgba(102, 126, 234, 0.05)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                      transform: 'translateY(-2px)',
-                    },
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    Módulos Ativos
-                  </Typography>
-                  <Typography variant="h4" fontWeight={700} color="primary" sx={{ mt: 1 }}>
-                    5
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Sistema completo
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2.5,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: 'rgba(245, 87, 108, 0.05)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: 'rgba(245, 87, 108, 0.1)',
-                      transform: 'translateY(-2px)',
-                    },
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    Performance
-                  </Typography>
-                  <Typography variant="h4" fontWeight={700} sx={{ color: '#f5576c', mt: 1 }}>
-                    Ótima
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Sistema rápido
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2.5,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: 'rgba(79, 172, 254, 0.05)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: 'rgba(79, 172, 254, 0.1)',
-                      transform: 'translateY(-2px)',
-                    },
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    Disponibilidade
-                  </Typography>
-                  <Typography variant="h4" fontWeight={700} sx={{ color: '#4facfe', mt: 1 }}>
-                    99.9%
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Uptime garantido
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2.5,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: 'rgba(74, 222, 128, 0.05)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                      transform: 'translateY(-2px)',
-                    },
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    Segurança
-                  </Typography>
-                  <Typography variant="h4" fontWeight={700} sx={{ color: '#4ade80', mt: 1 }}>
-                    100%
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Dados protegidos
-                  </Typography>
-                </Box>
-              </Box>
-            </Paper>
-          </Fade>
-
-          {/* Welcome Message */}
-          <Fade in timeout={1200}>
-            <Paper
-              elevation={0}
-              sx={{
-                mt: 3,
-                p: 3,
-                borderRadius: 3,
-                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-                border: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                💡 <strong>Dica:</strong> Clique em qualquer card acima para acessar a área correspondente e
-                gerenciar seus dados.
+            <Box display="flex" alignItems="center" justifyContent="center" mb={1}>
+              <TrendingUp sx={{ mr: 1 }} />
+              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
+                Receita Mensal
               </Typography>
-            </Paper>
-          </Fade>
-        </Box>
-      </Fade>
+            </Box>
+            <Typography variant="h4" fontWeight={700}>
+              {formatCurrency(metrics.receitaMensal)}
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
