@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import {
   Box, CssBaseline, AppBar, Toolbar, Typography,
   Drawer, List, ListItem, ListItemIcon, ListItemText,
-  IconButton, Divider, useMediaQuery, useTheme
+  IconButton, Divider, useMediaQuery, useTheme, Container
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -16,6 +16,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { DRAWER_WIDTH, ROUTES } from '../../constants';
 import ThemeToggle from './ThemeToggle';
+import Breadcrumbs from './Breadcrumbs';
+import { getPageTitle } from '../../hooks/usePageTitle';
 
 const drawerWidth = DRAWER_WIDTH;
 
@@ -33,6 +35,8 @@ const Layout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const pageTitle = getPageTitle(location.pathname);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -52,18 +56,37 @@ const Layout = () => {
       </Box>
       <Divider />
       <List>
-        {menuItems.map((item) => (
-          <ListItem 
-            button 
-            key={item.text} 
-            component={RouterLink} 
-            to={item.path}
-            onClick={isMobile ? handleDrawerToggle : undefined}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <ListItem
+              button
+              key={item.text}
+              component={RouterLink}
+              to={item.path}
+              onClick={isMobile ? handleDrawerToggle : undefined}
+              sx={{
+                backgroundColor: isActive ? 'action.selected' : 'transparent',
+                borderRight: isActive ? 3 : 0,
+                borderColor: 'primary.main',
+                '&:hover': {
+                  backgroundColor: isActive ? 'action.selected' : 'action.hover',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: isActive ? 'primary.main' : 'inherit' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? 'primary.main' : 'inherit',
+                }}
+              />
+            </ListItem>
+          );
+        })}
       </List>
       <Divider />
       <List>
@@ -96,7 +119,7 @@ const Layout = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Oficina SaaS
+            {pageTitle}
           </Typography>
           <ThemeToggle />
         </Toolbar>
@@ -122,16 +145,19 @@ const Layout = () => {
       </Box>
       <Box
         component="main"
-        sx={{ 
-          flexGrow: 1, 
-          py: 3, // Padding vertical apenas (top/bottom)
-          px: 0, // Remove padding horizontal (left/right)
+        sx={{
+          flexGrow: 1,
+          py: 3,
+          px: 0,
           width: { md: `calc(100% - ${drawerWidth}px)` },
           maxWidth: { md: `calc(100% - ${drawerWidth}px)` },
           marginTop: '64px'
         }}
       >
-        <Outlet />
+        <Container maxWidth="xl">
+          <Breadcrumbs />
+          <Outlet />
+        </Container>
       </Box>
     </Box>
   );
