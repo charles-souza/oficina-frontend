@@ -55,9 +55,12 @@ const OrdensServicoPage: React.FC = () => {
         rowsPerPage,
         statusFilter || undefined
       );
+      console.log('Response ordens:', response);
+      console.log('Content:', response.content);
       setOrdens(response.content);
       setTotalElements(response.totalElements);
     } catch (error) {
+      console.error('Erro ao carregar ordens:', error);
       showNotification('Erro ao carregar ordens de serviço', 'error');
     } finally {
       setLoading(false);

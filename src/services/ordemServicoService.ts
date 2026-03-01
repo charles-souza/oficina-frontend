@@ -29,6 +29,21 @@ export const ordemServicoService = {
     const response = await api.get<PaginatedResponse<OrdemServico>>(BASE_URL, {
       params,
     });
+
+    console.log('API Response:', response);
+    console.log('Response data:', response.data);
+
+    // Verificar se é array direto ou objeto paginado
+    if (Array.isArray(response.data)) {
+      return {
+        content: response.data,
+        totalElements: response.data.length,
+        totalPages: 1,
+        size: response.data.length,
+        number: 0,
+      };
+    }
+
     return response.data;
   },
 
