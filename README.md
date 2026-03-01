@@ -108,21 +108,27 @@ Pressione `Ctrl + C` no terminal
 
 | Módulo | Funcionalidades |
 |--------|----------------|
-| **Dashboard** | Visão geral, métricas em tempo real, 5 cards funcionais |
-| **Clientes** | CRUD completo, busca por nome, validação CPF/CNPJ, CEP automático |
-| **Veículos** | Cadastro, vinculação com clientes, paginação |
-| **Orçamentos** | Criação, cálculo automático, múltiplos itens dinâmicos |
-| **Recibos** | Emissão, formas de pagamento, histórico |
-| **Serviços** | Catálogo, preços, tempo estimado |
+| **Dashboard** | 📊 Visão geral completa, 8 métricas em tempo real, gráficos (pizza/barra), receitas |
+| **Clientes** | 👥 CRUD completo, busca por nome, validação CPF/CNPJ, CEP automático |
+| **Veículos** | 🚗 Cadastro, vinculação com clientes, paginação |
+| **Orçamentos** | 📝 Criação, cálculo automático, múltiplos itens dinâmicos |
+| **Ordens de Serviço** | 🔧 Gestão completa, status workflow, criação a partir de orçamentos |
+| **Histórico** | 📜 Timeline visual de eventos, filtros por veículo, rastreamento completo |
+| **Recibos** | 💰 Emissão, formas de pagamento, histórico |
+| **Serviços** | 🛠️ Catálogo, preços, tempo estimado |
 
 ### ✅ Sistema
 
-- **Autenticação JWT** com token automático
+- **Dark/Light Mode** com toggle e preferência do sistema
+- **Autenticação JWT** com token automático e refresh
+- **Navegação Moderna** com breadcrumbs e títulos dinâmicos
+- **Perfil de Usuário** com avatar e menu dropdown
 - **Formulários validados** com Formik + Yup
 - **Notificações** em tempo real
-- **Design moderno** e responsivo
-- **Loading states** em todas operações
+- **Design profissional** com MUI theme customizado
+- **Loading states** e skeleton loaders
 - **Error boundaries** para captura de erros
+- **Responsivo** para mobile, tablet e desktop
 
 ---
 
@@ -138,6 +144,9 @@ Pressione `Ctrl + C` no terminal
 | **React Router** | 7.13.1 | Roteamento |
 | **Formik** | 2.4.9 | Gerenciamento de formulários |
 | **Yup** | 1.7.1 | Validação de schemas |
+| **Recharts** | 2.x | Gráficos e visualizações |
+| **date-fns** | 3.x | Manipulação de datas |
+| **@mui/lab** | 6.x | Componentes experimentais MUI |
 
 ---
 
@@ -151,23 +160,41 @@ oficina-frontend/
 ├── public/                 # Assets estáticos
 ├── src/
 │   ├── components/
-│   │   ├── common/        # Componentes reutilizáveis
-│   │   │   ├── FormContainer.jsx
-│   │   │   ├── FormField.jsx
-│   │   │   ├── FormActions.jsx
-│   │   │   └── ErrorBoundary.jsx
-│   │   ├── clientes/      # Módulo clientes
-│   │   ├── veiculos/      # Módulo veículos
-│   │   ├── orcamentos/    # Módulo orçamentos
-│   │   ├── recibos/       # Módulo recibos
-│   │   └── servicos/      # Módulo serviços
-│   ├── pages/             # Páginas principais
-│   ├── services/          # Serviços de API
-│   │   └── api.js         # Instância Axios com interceptors
-│   ├── contexts/          # React Context
-│   ├── utils/             # Utilitários
-│   └── constants/         # Constantes
-├── .env.example           # Exemplo de variáveis
+│   │   ├── common/            # Componentes reutilizáveis
+│   │   │   ├── Layout.tsx          # Layout principal com drawer
+│   │   │   ├── Breadcrumbs.tsx     # Navegação breadcrumb
+│   │   │   ├── ThemeToggle.tsx     # Toggle dark/light
+│   │   │   ├── UserProfile.tsx     # Perfil no drawer
+│   │   │   ├── FormField.tsx
+│   │   │   └── ErrorBoundary.tsx
+│   │   ├── dashboard/         # Componentes do dashboard
+│   │   │   ├── MetricCard.tsx      # Cards de métricas
+│   │   │   └── ChartCard.tsx       # Cards de gráficos
+│   │   ├── clientes/          # Módulo clientes
+│   │   ├── veiculos/          # Módulo veículos
+│   │   ├── orcamentos/        # Módulo orçamentos
+│   │   ├── ordens-servico/    # Módulo ordens de serviço
+│   │   ├── historico/         # Módulo histórico
+│   │   ├── recibos/           # Módulo recibos
+│   │   └── servicos/          # Módulo serviços
+│   ├── pages/                 # Páginas principais
+│   ├── services/              # Serviços de API
+│   │   ├── api.ts                  # Instância Axios
+│   │   ├── dashboardService.ts     # Service dashboard
+│   │   ├── ordemServicoService.ts  # Service ordens
+│   │   └── historicoService.ts     # Service histórico
+│   ├── contexts/              # React Context
+│   │   ├── NotificationContext.tsx
+│   │   └── ThemeContext.tsx        # Contexto de tema
+│   ├── theme/                 # Sistema de tema
+│   │   └── theme.ts                # Temas light/dark
+│   ├── hooks/                 # Custom hooks
+│   │   └── usePageTitle.ts         # Hook de título
+│   ├── types/                 # TypeScript types
+│   │   └── api.ts                  # Tipos da API
+│   ├── utils/                 # Utilitários
+│   └── constants/             # Constantes
+├── .env.example              # Exemplo de variáveis
 └── package.json
 ```
 
