@@ -8,6 +8,8 @@ import RecibosPage from './pages/RecibosPage';
 import ServicosPage from './pages/ServicosPage';
 import OrdensServicoPage from './pages/OrdensServicoPage';
 import HistoricoPage from './pages/HistoricoPage';
+import PerfilPage from './pages/PerfilPage';
+import ConfiguracoesPage from './pages/ConfiguracoesPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ClienteForm from './components/clientes/ClienteForm';
@@ -66,8 +68,11 @@ const AppRoutes = () => {
         <Route path="historico">
           <Route index element={<HistoricoPage />} />
         </Route>
+
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="configuracoes" element={<ConfiguracoesPage />} />
       </Route>
-      
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
