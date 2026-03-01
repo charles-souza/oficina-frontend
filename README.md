@@ -1,70 +1,379 @@
-# Getting Started with Create React App
+# 🚗 Oficina Frontend - Sistema de Gerenciamento de Oficina
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Sistema SaaS para gestão de oficinas mecânicas, desenvolvido em React com Material-UI.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Início Rápido
 
-### `npm start`
+```bash
+# 1. Instalar dependências
+npm install
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# 2. Configurar backend (criar arquivo .env)
+echo REACT_APP_API_URL=http://localhost:8080 > .env
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# 3. Iniciar projeto
+npm start
 
-### `npm test`
+# 4. Abrir no navegador
+# http://localhost:3000
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Pronto!** O projeto estará rodando. 🎉
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 📋 Pré-requisitos
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Antes de executar o projeto, você precisa ter instalado:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Node.js** (versão 14 ou superior)
+- **npm** (versão 6 ou superior)
 
-### `npm run eject`
+Para verificar se já tem instalado:
+```bash
+node --version
+npm --version
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+💡 **Não tem instalado?** Baixe em: https://nodejs.org/
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📦 Instalação Completa
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Passo 1: Navegar até o diretório do projeto
 
-## Learn More
+```bash
+cd C:\projetos\oficina-frontend
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Passo 2: Instalar dependências
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm install
+```
 
-### Code Splitting
+⏱️ Isso levará alguns minutos. O npm instalará:
+- React 19.2.3
+- Material-UI 7.3.6
+- Axios, React Router, Formik e outras dependências
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Passo 3: Configurar variáveis de ambiente
 
-### Analyzing the Bundle Size
+Crie um arquivo `.env` na raiz do projeto:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+**Windows (PowerShell):**
+```powershell
+echo REACT_APP_API_URL=http://localhost:8080 > .env
+```
 
-### Making a Progressive Web App
+**Windows (CMD):**
+```cmd
+echo REACT_APP_API_URL=http://localhost:8080 > .env
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Linux/Mac:**
+```bash
+echo "REACT_APP_API_URL=http://localhost:8080" > .env
+```
 
-### Advanced Configuration
+Ou crie manualmente o arquivo `.env` com o conteúdo:
+```env
+REACT_APP_API_URL=http://localhost:8080
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## ▶️ Executando o Projeto
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Modo Desenvolvimento
 
-### `npm run build` fails to minify
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+✅ **O que acontece:**
+- Servidor de desenvolvimento inicia
+- Browser abre automaticamente em `http://localhost:3000`
+- Hot reload habilitado (mudanças aparecem automaticamente)
+
+### Parar o servidor
+
+Pressione `Ctrl + C` no terminal
+
+---
+
+## 🏗️ Build para Produção
+
+### Criar build otimizado
+
+```bash
+npm run build
+```
+
+Isso cria a pasta `build/` com:
+- ✅ Código minificado
+- ✅ Assets otimizados
+- ✅ Code splitting
+- ✅ Pronto para deploy
+
+### Testar o build localmente
+
+```bash
+# Instalar servidor estático (uma vez só)
+npm install -g serve
+
+# Executar
+serve -s build
+```
+
+Acesse: `http://localhost:3000`
+
+---
+
+## 🎯 Funcionalidades do Sistema
+
+### ✅ Gerenciamento de Clientes
+- Cadastro completo com CEP automático
+- Busca e filtros
+- Validação de CPF/CNPJ
+- Paginação
+
+### ✅ Gerenciamento de Veículos
+- Cadastro de veículos
+- Vinculação com clientes
+- Histórico de serviços
+
+### ✅ Orçamentos
+- Criação de orçamentos detalhados
+- Cálculo automático de valores
+- Controle de status
+- Geração de PDF
+
+### ✅ Serviços e Recibos
+- Cadastro de serviços
+- Emissão de recibos
+- Controle de pagamentos
+
+### ✅ Dashboard
+- Visão geral do negócio
+- Métricas em tempo real
+- Cards informativos
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+| Tecnologia | Versão | Uso |
+|-----------|--------|-----|
+| React | 19.2.3 | Framework principal |
+| Material-UI | 7.3.6 | Componentes UI |
+| Axios | 1.13.2 | Requisições HTTP |
+| React Router | 7.11.0 | Roteamento |
+| Formik | 2.4.9 | Formulários |
+| Yup | 1.7.1 | Validação |
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+oficina-frontend/
+├── public/                 # Arquivos públicos
+├── src/
+│   ├── components/        # Componentes React
+│   │   ├── common/       # Componentes reutilizáveis
+│   │   ├── clientes/     # Componentes de clientes
+│   │   ├── veiculos/     # Componentes de veículos
+│   │   └── orcamentos/   # Componentes de orçamentos
+│   ├── pages/            # Páginas principais
+│   ├── services/         # Serviços de API
+│   ├── contexts/         # Context API
+│   ├── utils/            # Utilitários
+│   └── constants/        # Constantes
+├── .env                  # Variáveis de ambiente
+└── package.json          # Dependências
+```
+
+---
+
+## ⚙️ Configuração do Backend
+
+O frontend precisa se conectar a uma API backend. Configure a URL no arquivo `.env`:
+
+### Backend Local
+```env
+REACT_APP_API_URL=http://localhost:8080
+```
+
+### Backend em Servidor
+```env
+REACT_APP_API_URL=https://api.seudominio.com
+```
+
+💡 **Importante**: Reinicie o servidor (`npm start`) após alterar o `.env`
+
+---
+
+## 🔐 Autenticação
+
+### Login
+O sistema usa autenticação JWT. Para fazer login:
+
+1. Acesse: `http://localhost:3000/login`
+2. Credenciais de teste (configuradas no backend):
+   - Usuário: `admin`
+   - Senha: `admin`
+
+### Token
+- Armazenado no `localStorage`
+- Enviado automaticamente em todas requisições
+- Logout automático se token expirar (401)
+
+---
+
+## 🐛 Problemas Comuns
+
+### Porta 3000 já está em uso
+
+**Solução 1**: Matar o processo
+```bash
+# Windows
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+
+# Linux/Mac
+lsof -ti:3000 | xargs kill -9
+```
+
+**Solução 2**: Usar outra porta
+```bash
+# Windows
+set PORT=3001 && npm start
+
+# Linux/Mac
+PORT=3001 npm start
+```
+
+### Erro ao instalar dependências
+
+```bash
+# Limpar cache e reinstalar
+npm cache clean --force
+rm -rf node_modules
+rm package-lock.json
+npm install
+```
+
+### Não consegue conectar com backend
+
+Verifique:
+1. ✅ Backend está rodando?
+2. ✅ URL no `.env` está correta?
+3. ✅ CORS configurado no backend?
+4. ✅ Firewall não está bloqueando?
+
+### Página em branco após build
+
+```bash
+# Verificar se há erros no console
+# Pressione F12 no navegador e veja o Console
+```
+
+---
+
+## 📝 Scripts Disponíveis
+
+```bash
+npm start          # Inicia desenvolvimento
+npm run build      # Build de produção
+npm test           # Executa testes
+npm audit          # Verifica vulnerabilidades
+npm outdated       # Lista pacotes desatualizados
+```
+
+---
+
+## 📚 Documentação Adicional
+
+- **[CORRECOES_APLICADAS.md](./CORRECOES_APLICADAS.md)** - Correções iniciais aplicadas
+- **[IMPLEMENTACOES_COMPLETAS.md](./IMPLEMENTACOES_COMPLETAS.md)** - Todas as implementações detalhadas
+
+---
+
+## 🌐 Deploy
+
+### Opções de Deploy
+
+1. **Netlify** (Recomendado)
+   ```bash
+   npm run build
+   # Arraste a pasta build/ para netlify.com
+   ```
+
+2. **Vercel**
+   ```bash
+   npm install -g vercel
+   vercel
+   ```
+
+3. **GitHub Pages**
+   ```bash
+   npm install gh-pages
+   npm run build
+   npm run deploy
+   ```
+
+---
+
+## ✅ Checklist de Execução
+
+- [ ] Node.js instalado
+- [ ] Dependências instaladas (`npm install`)
+- [ ] Arquivo `.env` criado
+- [ ] Backend rodando
+- [ ] Servidor frontend iniciado (`npm start`)
+- [ ] Navegador aberto em `http://localhost:3000`
+- [ ] Login realizado com sucesso
+
+---
+
+## 💡 Dicas
+
+### Desenvolvimento
+- Use `Ctrl + C` para parar o servidor
+- Mudanças no código são aplicadas automaticamente (Hot Reload)
+- Abra DevTools com `F12` para debugging
+
+### Performance
+- Build de produção é ~10x menor que desenvolvimento
+- Use `npm run build` antes de deploy
+- Comprima assets para melhor performance
+
+### Debugging
+- Erros aparecem no console do browser (F12)
+- Erros de compilação aparecem no terminal
+- Use React DevTools para inspecionar componentes
+
+---
+
+## 🤝 Suporte
+
+Precisa de ajuda? Consulte:
+- Documentação completa nos arquivos `.md` do projeto
+- Issues no repositório
+- Contato: contato@example.com
+
+---
+
+## 📄 Licença
+
+Este projeto é privado e proprietário.
+
+---
+
+**Desenvolvido com ❤️ usando React e Material-UI**
+
+🚀 **Boa sorte com seu projeto!**

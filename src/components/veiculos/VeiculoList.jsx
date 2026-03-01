@@ -16,57 +16,54 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// Stateless table component: receives clientes and action handlers
-const ClienteList = ({ clientes = [], onDelete, onEdit, page = 0, rowsPerPage = 10, totalCount = 0, onPageChange, onRowsPerPageChange }) => {
+const VeiculoList = ({ veiculos = [], onDelete, onEdit, page = 0, rowsPerPage = 10, totalCount = 0, onPageChange, onRowsPerPageChange }) => {
   const navigate = useNavigate();
-  const visibleClientes = clientes || [];
+  const visible = veiculos || [];
 
-  const handleEditNavigate = (cliente) => {
-    if (onEdit) return onEdit(cliente);
-    if (cliente && cliente.id) {
-      navigate(`/clientes/editar/${cliente.id}`);
-    }
+  const handleEdit = (v) => {
+    if (onEdit) return onEdit(v);
+    if (v && v.id) navigate(`/veiculos/editar/${v.id}`);
   };
 
   return (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
-        <Typography variant="h5">Lista de Clientes</Typography>
+        <Typography variant="h5">Lista de Veículos</Typography>
       </Box>
 
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Nome</TableCell>
-            <TableCell>CPF/CNPJ</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Telefone</TableCell>
-            <TableCell>Cidade</TableCell>
+            <TableCell>Placa</TableCell>
+            <TableCell>Marca</TableCell>
+            <TableCell>Modelo</TableCell>
+            <TableCell>Ano</TableCell>
+            <TableCell>Cliente ID</TableCell>
             <TableCell align="right">Ações</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {visibleClientes.map((cliente) => (
-            <TableRow key={cliente.id} hover>
-              <TableCell>{cliente.nome}</TableCell>
-              <TableCell>{cliente.cpfCnpj}</TableCell>
-              <TableCell>{cliente.email}</TableCell>
-              <TableCell>{cliente.telefone}</TableCell>
-              <TableCell>{cliente.cidade}</TableCell>
+          {visible.map((v) => (
+            <TableRow key={v.id} hover>
+              <TableCell>{v.placa}</TableCell>
+              <TableCell>{v.marca}</TableCell>
+              <TableCell>{v.modelo}</TableCell>
+              <TableCell>{v.ano}</TableCell>
+              <TableCell>{v.clienteId}</TableCell>
               <TableCell align="right">
                 <IconButton
                   size="small"
                   color="primary"
-                  onClick={() => handleEditNavigate(cliente)}
-                  aria-label={`Editar cliente ${cliente.nome}`}
+                  onClick={() => handleEdit(v)}
+                  aria-label={`Editar veículo ${v.placa}`}
                 >
                   <EditIcon fontSize="small" />
                 </IconButton>
                 <IconButton
                   size="small"
                   color="error"
-                  onClick={() => onDelete && onDelete(cliente.id)}
-                  aria-label={`Excluir cliente ${cliente.nome}`}
+                  onClick={() => onDelete && onDelete(v.id)}
+                  aria-label={`Excluir veículo ${v.placa}`}
                 >
                   <DeleteIcon fontSize="small" />
                 </IconButton>
@@ -78,7 +75,7 @@ const ClienteList = ({ clientes = [], onDelete, onEdit, page = 0, rowsPerPage = 
 
       <TablePagination
         component="div"
-        count={totalCount || clientes.length}
+        count={totalCount || veiculos.length}
         page={page}
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
@@ -89,4 +86,4 @@ const ClienteList = ({ clientes = [], onDelete, onEdit, page = 0, rowsPerPage = 
   );
 };
 
-export default ClienteList;
+export default VeiculoList;

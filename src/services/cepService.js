@@ -3,13 +3,15 @@ import axios from 'axios';
 const VIA_CEP_BASE = 'https://viacep.com.br/ws';
 
 const cepService = {
-  async getAddressByCep(cep) {
+  async getAddressByCep(cep, signal = null) {
     if (!cep) throw new Error('CEP é obrigatório');
     const cleaned = String(cep).replace(/\D/g, '');
     if (cleaned.length !== 8) throw new Error('CEP inválido');
 
     try {
-      const response = await axios.get(`${VIA_CEP_BASE}/${cleaned}/json/`);
+      const response = await axios.get(`${VIA_CEP_BASE}/${cleaned}/json/`, {
+        signal,
+      });
       const data = response.data;
       if (!data) throw new Error('Resposta vazia da API ViaCep');
       if (data.erro) throw new Error('CEP não encontrado');

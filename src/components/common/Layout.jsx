@@ -10,16 +10,21 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import BuildIcon from '@mui/icons-material/Build';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { DRAWER_WIDTH, ROUTES } from '../../constants';
 
-const drawerWidth = 240;
+const drawerWidth = DRAWER_WIDTH;
 
 const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { text: 'Clientes', icon: <PeopleIcon />, path: '/clientes' },
-  { text: 'Veículos', icon: <DirectionsCarIcon />, path: '/veiculos' },
-  { text: 'Serviços', icon: <BuildIcon />, path: '/servicos' },
+  { text: 'Dashboard', icon: <DashboardIcon />, path: ROUTES.DASHBOARD },
+  { text: 'Clientes', icon: <PeopleIcon />, path: ROUTES.CLIENTS },
+  { text: 'Veículos', icon: <DirectionsCarIcon />, path: ROUTES.VEHICLES },
+  { text: 'Orçamentos', icon: <BuildIcon />, path: ROUTES.QUOTES },
+  { text: 'Recibos', icon: <ReceiptIcon />, path: ROUTES.RECEIPTS },
+  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: ROUTES.SERVICES },
 ];
 
 const Layout = () => {
@@ -34,7 +39,7 @@ const Layout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate(ROUTES.LOGIN);
   };
 
   const drawer = (

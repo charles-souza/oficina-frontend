@@ -1,15 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AppRoutes from './routes';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import { NotificationProvider } from './contexts/NotificationContext';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <Router>
-        <AppRoutes />
-      </Router>
-    </div>
+    <ErrorBoundary>
+      <NotificationProvider>
+        <div className="App">
+          <Router>
+            <AppRoutes />
+          </Router>
+        </div>
+      </NotificationProvider>
+    </ErrorBoundary>
   );
 }
 
