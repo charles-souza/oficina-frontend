@@ -17,7 +17,8 @@
       "Bash(netstat:*)",
       "Bash(cd C:\\\\projetos\\\\oficina-frontend:*)",
       "Bash(wc:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(done)"
     ]
   }
 }

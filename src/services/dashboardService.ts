@@ -45,7 +45,7 @@ export const dashboardService = {
    * Buscar apenas as métricas principais
    */
   getMainMetrics: async (): Promise<DashboardMetrics> => {
-    const response = await api.get<DashboardMetrics>(`${BASE_URL}/metricas`);
+    const response = await api.get<DashboardMetrics>(BASE_URL);
     return response.data;
   },
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import {
   Box, CssBaseline, AppBar, Toolbar, Typography,
-  Drawer, List, ListItem, ListItemIcon, ListItemText,
+  Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText,
   IconButton, Divider, useMediaQuery, useTheme, Container
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -65,31 +65,31 @@ const Layout = () => {
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <ListItem
-              button
-              key={item.text}
-              component={RouterLink}
-              to={item.path}
-              onClick={isMobile ? handleDrawerToggle : undefined}
-              sx={{
-                backgroundColor: isActive ? 'action.selected' : 'transparent',
-                borderRight: isActive ? 3 : 0,
-                borderColor: 'primary.main',
-                '&:hover': {
-                  backgroundColor: isActive ? 'action.selected' : 'action.hover',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: isActive ? 'primary.main' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'primary.main' : 'inherit',
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton
+                component={RouterLink}
+                to={item.path}
+                onClick={isMobile ? handleDrawerToggle : undefined}
+                sx={{
+                  backgroundColor: isActive ? 'action.selected' : 'transparent',
+                  borderRight: isActive ? 3 : 0,
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: isActive ? 'action.selected' : 'action.hover',
+                  },
                 }}
-              />
+              >
+                <ListItemIcon sx={{ color: isActive ? 'primary.main' : 'inherit' }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontWeight: isActive ? 600 : 400,
+                    color: isActive ? 'primary.main' : 'inherit',
+                  }}
+                />
+              </ListItemButton>
             </ListItem>
           );
         })}
