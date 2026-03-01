@@ -84,7 +84,7 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
               divider={false}
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <FormField
                     name="descricao"
                     label="Descrição do Serviço"
@@ -96,7 +96,7 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <FormField
                     name="preco"
                     label="Preço (R$)"
@@ -109,7 +109,7 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <FormField
                     name="tempoEstimadoMinutos"
                     label="Tempo Estimado (minutos)"

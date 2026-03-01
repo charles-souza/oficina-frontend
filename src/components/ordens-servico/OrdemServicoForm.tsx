@@ -130,13 +130,13 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
         <Form>
           <Grid container spacing={3}>
             {/* Seção Cliente e Veículo */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Typography variant="h6" gutterBottom>
                 Informações Básicas
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <FormControl fullWidth error={touched.clienteId && Boolean(errors.clienteId)}>
                 <InputLabel>Cliente *</InputLabel>
                 <Select
@@ -165,7 +165,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <FormControl fullWidth error={touched.veiculoId && Boolean(errors.veiculoId)}>
                 <InputLabel>Veículo *</InputLabel>
                 <Select
@@ -189,7 +189,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <FormField
                 name="dataAbertura"
                 label="Data de Abertura"
@@ -199,7 +199,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <FormField
                 name="dataConclusao"
                 label="Data de Conclusão"
@@ -208,7 +208,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <FormField
                 name="descricao"
                 label="Descrição do Problema"
@@ -218,7 +218,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <FormField
                 name="observacoes"
                 label="Observações"
@@ -228,21 +228,21 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
             </Grid>
 
             {/* Seção Itens */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Divider sx={{ my: 2 }} />
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6">Itens da Ordem</Typography>
               </Box>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <FieldArray name="itens">
                 {({ push, remove }) => (
                   <>
                     {values.itens.map((item, index) => (
                       <Paper key={index} sx={{ p: 2, mb: 2, backgroundColor: 'grey.50' }}>
                         <Grid container spacing={2}>
-                          <Grid item xs={12} sm={6} md={2}>
+                          <Grid xs={12} sm={6} md={2}>
                             <FormControl fullWidth size="small">
                               <InputLabel>Tipo *</InputLabel>
                               <Select
@@ -258,7 +258,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
                             </FormControl>
                           </Grid>
 
-                          <Grid item xs={12} sm={6} md={4}>
+                          <Grid xs={12} sm={6} md={4}>
                             <FormField
                               name={`itens.${index}.descricao`}
                               label="Descrição"
@@ -267,7 +267,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
                             />
                           </Grid>
 
-                          <Grid item xs={6} sm={4} md={2}>
+                          <Grid xs={6} sm={4} md={2}>
                             <FormField
                               name={`itens.${index}.quantidade`}
                               label="Qtd"
@@ -277,7 +277,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
                             />
                           </Grid>
 
-                          <Grid item xs={6} sm={4} md={2}>
+                          <Grid xs={6} sm={4} md={2}>
                             <FormField
                               name={`itens.${index}.valorUnitario`}
                               label="Valor Unit."
@@ -287,7 +287,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
                             />
                           </Grid>
 
-                          <Grid item xs={12} sm={4} md={2}>
+                          <Grid xs={12} sm={4} md={2}>
                             <Box display="flex" alignItems="center" height="100%">
                               <Typography variant="body2" mr={2}>
                                 Total: R${' '}
@@ -329,11 +329,11 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
             </Grid>
 
             {/* Seção Totais */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Divider sx={{ my: 2 }} />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <FormField
                 name="desconto"
                 label="Desconto (%)"
@@ -341,7 +341,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <Box
                 sx={{
                   p: 2,
@@ -359,7 +359,7 @@ const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
             </Grid>
 
             {/* Botões */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Box display="flex" gap={2} justifyContent="flex-end">
                 <Button
                   variant="outlined"

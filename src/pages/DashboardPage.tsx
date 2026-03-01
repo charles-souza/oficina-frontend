@@ -3,9 +3,9 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   CircularProgress,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   PieChart,
   Pie,
@@ -119,7 +119,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Cards de Métricas Principais */}
       <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Clientes"
             value={metrics.totalClientes}
@@ -129,7 +129,7 @@ const DashboardPage: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Veículos"
             value={metrics.totalVeiculos}
@@ -139,7 +139,7 @@ const DashboardPage: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Orçamentos"
             value={metrics.totalOrcamentos}
@@ -149,7 +149,7 @@ const DashboardPage: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Ordens de Serviço"
             value={metrics.totalOrdensServico}
@@ -162,7 +162,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Cards de Status das Ordens */}
       <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Abertas Hoje"
             value={metrics.ordensAbertasHoje}
@@ -172,7 +172,7 @@ const DashboardPage: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Em Andamento"
             value={metrics.ordensEmAndamento}
@@ -182,7 +182,7 @@ const DashboardPage: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Aguardando Peça"
             value={metrics.ordensAguardandoPeca}
@@ -192,7 +192,7 @@ const DashboardPage: React.FC = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={3}>
           <MetricCard
             title="Prontas"
             value={metrics.ordensProntas}
@@ -206,7 +206,7 @@ const DashboardPage: React.FC = () => {
       {/* Gráficos */}
       <Grid container spacing={3} mb={3}>
         {/* Gráfico de Status das Ordens */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <ChartCard
             title="Status das Ordens"
             subtitle="Distribuição atual das ordens de serviço"
@@ -245,7 +245,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         {/* Gráfico de Resumo Geral */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <ChartCard
             title="Resumo Geral"
             subtitle="Total de registros por categoria"
@@ -265,7 +265,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Cards de Receita */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
             <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1 }}>
               Receita de Orçamentos
@@ -276,7 +276,7 @@ const DashboardPage: React.FC = () => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'info.main', color: 'white' }}>
             <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1 }}>
               Receita de Ordens
@@ -287,7 +287,7 @@ const DashboardPage: React.FC = () => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Paper
             sx={{
               p: 3,

@@ -223,7 +223,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
               subtitle="Informações básicas do cliente"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="nome"
                     label="Nome"
@@ -234,7 +234,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="email"
                     label="Email"
@@ -245,7 +245,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="cpfCnpj"
                     label="CPF/CNPJ"
@@ -259,7 +259,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="telefone"
                     label="Telefone"
@@ -280,7 +280,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
               subtitle="Localização e dados de contato"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={3}>
+                <Grid xs={12} md={3}>
                   <FormField
                     name="cep"
                     label="CEP"
@@ -301,7 +301,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="cidade"
                     label="Cidade"
@@ -310,7 +310,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={3}>
+                <Grid xs={12} md={3}>
                   <FormField
                     name="estado"
                     label="Estado"
@@ -319,7 +319,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="bairro"
                     label="Bairro"
@@ -328,7 +328,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="rua"
                     label="Rua"
@@ -338,7 +338,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={3}>
+                <Grid xs={12} md={3}>
                   <FormField
                     name="numero"
                     label="Número"
@@ -347,7 +347,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={9}>
+                <Grid xs={12} md={9}>
                   <FormField
                     name="complemento"
                     label="Complemento"

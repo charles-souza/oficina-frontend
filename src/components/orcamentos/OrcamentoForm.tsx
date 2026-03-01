@@ -115,7 +115,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
               subtitle="Cliente, veículo e datas do orçamento"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="clienteId"
                     label="ID do Cliente"
@@ -125,7 +125,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="veiculoId"
                     label="ID do Veículo"
@@ -135,7 +135,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="dataEmissao"
                     label="Data de Emissão"
@@ -145,7 +145,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="dataValidade"
                     label="Data de Validade"
@@ -156,7 +156,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <FormField
                     name="descricaoProblema"
                     label="Descrição do Problema"
@@ -212,7 +212,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                         </Box>
 
                         <Grid container spacing={2}>
-                          <Grid item xs={12} md={3}>
+                          <Grid xs={12} md={3}>
                             <FormField
                               name={`itens.${index}.tipo`}
                               label="Tipo"
@@ -220,7 +220,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                             />
                           </Grid>
 
-                          <Grid item xs={12} md={5}>
+                          <Grid xs={12} md={5}>
                             <FormField
                               name={`itens.${index}.descricao`}
                               label="Descrição"
@@ -228,7 +228,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                             />
                           </Grid>
 
-                          <Grid item xs={12} md={2}>
+                          <Grid xs={12} md={2}>
                             <FormField
                               name={`itens.${index}.quantidade`}
                               label="Quantidade"
@@ -237,7 +237,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                             />
                           </Grid>
 
-                          <Grid item xs={12} md={2}>
+                          <Grid xs={12} md={2}>
                             <FormField
                               name={`itens.${index}.valorUnitario`}
                               label="Valor (R$)"
@@ -276,7 +276,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
               divider={false}
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="desconto"
                     label="Desconto (R$)"
@@ -287,7 +287,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <FormField
                     name="observacoes"
                     label="Observações"

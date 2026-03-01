@@ -111,7 +111,7 @@ const HistoricoPage: React.FC = () => {
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid xs={12} sm={6} md={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Filtrar por Veículo</InputLabel>
               <Select
@@ -132,7 +132,7 @@ const HistoricoPage: React.FC = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={8}>
+          <Grid xs={12} sm={6} md={8}>
             <Box display="flex" gap={2} justifyContent="flex-end">
               <Button
                 variant="outlined"

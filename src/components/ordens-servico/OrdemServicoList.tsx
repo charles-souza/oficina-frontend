@@ -77,7 +77,7 @@ const OrdemServicoList: React.FC<OrdemServicoListProps> = ({
     );
   }
 
-  if (ordens.length === 0) {
+  if (!ordens || ordens.length === 0) {
     return (
       <Paper sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="body1" color="text.secondary">

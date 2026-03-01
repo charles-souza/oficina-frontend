@@ -155,7 +155,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
               subtitle="Informações principais para identificação"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="placa"
                     label="Placa"
@@ -166,7 +166,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="marca"
                     label="Marca"
@@ -175,7 +175,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="modelo"
                     label="Modelo"
@@ -184,7 +184,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="ano"
                     label="Ano"
@@ -194,7 +194,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="cor"
                     label="Cor"
@@ -204,7 +204,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid xs={12} md={4}>
                   <FormField
                     name="clienteId"
                     label="ID do Cliente"
@@ -221,7 +221,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
               subtitle="Chassi e Renavam do veículo"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="chassi"
                     label="Chassi"
@@ -231,7 +231,7 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid xs={12} md={6}>
                   <FormField
                     name="renavam"
                     label="Renavam"

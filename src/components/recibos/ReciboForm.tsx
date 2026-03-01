@@ -104,7 +104,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
               subtitle="Cliente e orçamento relacionado"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <FormField
                     name="clienteId"
                     label="ID do Cliente"
@@ -116,7 +116,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid xs={12} sm={6}>
                   <FormField
                     name="orcamentoId"
                     label="ID do Orçamento"
@@ -134,7 +134,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
               subtitle="Data, valor e forma de pagamento"
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12} sm={4}>
+                <Grid xs={12} sm={4}>
                   <FormField
                     name="dataEmissao"
                     label="Data de Emissão"
@@ -145,7 +145,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid xs={12} sm={4}>
                   <FormField
                     name="valorPago"
                     label="Valor Pago (R$)"
@@ -158,7 +158,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid xs={12} sm={4}>
                   <FormField
                     name="formaPagamento"
                     label="Forma de Pagamento"
@@ -183,7 +183,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
               divider={false}
             >
               <Grid container spacing={2.5}>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <FormField
                     name="descricao"
                     label="Descrição"
@@ -195,7 +195,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <FormField
                     name="observacoes"
                     label="Observações"
