@@ -12,11 +12,11 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import BuildIcon from '@mui/icons-material/Build';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
-import LogoutIcon from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { DRAWER_WIDTH, ROUTES } from '../../constants';
 import ThemeToggle from './ThemeToggle';
 import Breadcrumbs from './Breadcrumbs';
+import UserProfile from './UserProfile';
 import { getPageTitle } from '../../hooks/usePageTitle';
 
 const drawerWidth = DRAWER_WIDTH;
@@ -50,10 +50,12 @@ const Layout = () => {
   const drawer = (
     <Box>
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700 }}>
           Oficina SaaS
         </Typography>
       </Box>
+      <Divider />
+      <UserProfile />
       <Divider />
       <List>
         {menuItems.map((item) => {
@@ -87,13 +89,6 @@ const Layout = () => {
             </ListItem>
           );
         })}
-      </List>
-      <Divider />
-      <List>
-        <ListItem button onClick={handleLogout}>
-          <ListItemIcon><LogoutIcon /></ListItemIcon>
-          <ListItemText primary="Sair" />
-        </ListItem>
       </List>
     </Box>
   );
