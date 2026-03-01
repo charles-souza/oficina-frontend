@@ -13,6 +13,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import HistoryIcon from '@mui/icons-material/History';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { DRAWER_WIDTH, ROUTES } from '../../constants';
 import ThemeToggle from './ThemeToggle';
@@ -28,6 +29,7 @@ const menuItems = [
   { text: 'Veículos', icon: <DirectionsCarIcon />, path: ROUTES.VEHICLES },
   { text: 'Orçamentos', icon: <BuildIcon />, path: ROUTES.QUOTES },
   { text: 'Ordens de Serviço', icon: <AssignmentIcon />, path: ROUTES.SERVICE_ORDERS },
+  { text: 'Histórico', icon: <HistoryIcon />, path: ROUTES.HISTORY },
   { text: 'Recibos', icon: <ReceiptIcon />, path: ROUTES.RECEIPTS },
   { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: ROUTES.SERVICES },
 ];
