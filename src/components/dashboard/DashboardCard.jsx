@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Card, CardContent, Typography, Box, CircularProgress, Button, Link as MuiLink} from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
-// Componente DashboardCard definido dentro do mesmo arquivo
 const DashboardCard = ({ title, fetchTotal, linkTo, color }) => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);

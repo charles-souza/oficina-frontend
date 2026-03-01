@@ -55,19 +55,25 @@ const DashboardPage = () => {
               : 0,
           veiculos:
             veiculosData.status === 'fulfilled'
-              ? veiculosData.value?.totalElements || veiculosData.value?.total || 0
+              ? veiculosData.value?.totalElements ||
+                veiculosData.value?.total ||
+                (Array.isArray(veiculosData.value) ? veiculosData.value.length : 0)
               : 0,
           orcamentos:
             orcamentosData.status === 'fulfilled' && Array.isArray(orcamentosData.value)
               ? orcamentosData.value.length
               : 0,
           recibos:
-            recibosData.status === 'fulfilled' && Array.isArray(recibosData.value)
-              ? recibosData.value.length
+            recibosData.status === 'fulfilled'
+              ? recibosData.value?.totalElements ||
+                recibosData.value?.total ||
+                (Array.isArray(recibosData.value) ? recibosData.value.length : 0)
               : 0,
           servicos:
-            servicosData.status === 'fulfilled' && Array.isArray(servicosData.value)
-              ? servicosData.value.length
+            servicosData.status === 'fulfilled'
+              ? servicosData.value?.totalElements ||
+                servicosData.value?.total ||
+                (Array.isArray(servicosData.value) ? servicosData.value.length : 0)
               : 0,
         });
       } catch (err) {

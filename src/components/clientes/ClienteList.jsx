@@ -16,7 +16,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-// Stateless table component: receives clientes and action handlers
 const ClienteList = ({ clientes = [], onDelete, onEdit, page = 0, rowsPerPage = 10, totalCount = 0, onPageChange, onRowsPerPageChange }) => {
   const navigate = useNavigate();
   const visibleClientes = clientes || [];

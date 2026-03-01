@@ -9,7 +9,12 @@
       "Bash(grep:*)",
       "Bash(npm audit:*)",
       "Bash(npm view:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(ls:*)",
+      "Bash(npm run:*)",
+      "Bash(sleep 5:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)"
     ]
   }
 }

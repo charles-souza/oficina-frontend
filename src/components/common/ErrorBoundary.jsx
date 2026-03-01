@@ -67,7 +67,7 @@ class ErrorBoundary extends Component {
                 Ocorreu um erro inesperado na aplicação. Tente recarregar a página ou voltar para o início.
               </Typography>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <Box
                   sx={{
                     mt: 3,

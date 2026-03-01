@@ -38,12 +38,9 @@ const LoginForm = () => {
       }
 
       if (!response.ok) {
-        console.error('Login failed:', response.status, data);
         const msg = (data && (data.message || data.error)) || `Erro ao fazer login: ${response.status}`;
         throw new Error(msg);
       }
-
-      console.log('Login success response:', data);
       if (data && data.token) {
         localStorage.setItem('token', data.token);
         window.location.href = '/';
@@ -51,7 +48,6 @@ const LoginForm = () => {
         throw new Error('Resposta do servidor não contém token');
       }
     } catch (error) {
-      console.error('Erro no handleSubmit:', error);
       setError(error.message || 'Falha no login. Verifique suas credenciais.');
     }
   };

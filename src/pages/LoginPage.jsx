@@ -27,7 +27,6 @@ const LoginPage = () => {
       });
 
       const data = response.data;
-      console.log('Login successful response:', data);
 
       if (data && (data.token || data.accessToken)) {
         const token = data.token || data.accessToken;

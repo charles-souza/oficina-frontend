@@ -3,7 +3,6 @@ import { withErrorHandling } from '../utils/errorHandler';
 import { ERROR_MESSAGES } from '../constants';
 
 export const clienteService = {
-  // paginated list or with filters via query params
   getAll: async (page = 0, size = 10, filters = {}) => {
     return withErrorHandling(
       async () => {
@@ -15,7 +14,6 @@ export const clienteService = {
     );
   },
 
-  // get by id
   getById: async (id) => {
     return withErrorHandling(
       async () => {
@@ -26,7 +24,6 @@ export const clienteService = {
     );
   },
 
-  // get by name (uses backend endpoint /clientes/nome/{nome})
   getByName: async (nome) => {
     return withErrorHandling(
       async () => {

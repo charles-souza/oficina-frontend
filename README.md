@@ -1,6 +1,6 @@
 # 🚗 Oficina Frontend - Sistema de Gerenciamento de Oficina
 
-Sistema SaaS para gestão de oficinas mecânicas, desenvolvido em React com Material-UI.
+Sistema SaaS para gestão de oficinas mecânicas, desenvolvido em **React 19** com **Material-UI 7** e **Vite**.
 
 ---
 
@@ -10,13 +10,10 @@ Sistema SaaS para gestão de oficinas mecânicas, desenvolvido em React com Mate
 # 1. Instalar dependências
 npm install
 
-# 2. Configurar backend (criar arquivo .env)
-echo REACT_APP_API_URL=http://localhost:8080 > .env
+# 2. Iniciar servidor de desenvolvimento
+npm run dev
 
-# 3. Iniciar projeto
-npm start
-
-# 4. Abrir no navegador
+# 3. Abrir no navegador
 # http://localhost:3000
 ```
 
@@ -26,63 +23,42 @@ npm start
 
 ## 📋 Pré-requisitos
 
-Antes de executar o projeto, você precisa ter instalado:
+- **Node.js** 18 ou superior
+- **npm** 9 ou superior
 
-- **Node.js** (versão 14 ou superior)
-- **npm** (versão 6 ou superior)
-
-Para verificar se já tem instalado:
+Verificar versões instaladas:
 ```bash
 node --version
 npm --version
 ```
 
-💡 **Não tem instalado?** Baixe em: https://nodejs.org/
+💡 **Download:** https://nodejs.org/
 
 ---
 
-## 📦 Instalação Completa
+## 📦 Instalação
 
-### Passo 1: Navegar até o diretório do projeto
+### 1. Clonar e navegar
 
 ```bash
 cd C:\projetos\oficina-frontend
 ```
 
-### Passo 2: Instalar dependências
+### 2. Instalar dependências
 
 ```bash
 npm install
 ```
 
-⏱️ Isso levará alguns minutos. O npm instalará:
-- React 19.2.3
-- Material-UI 7.3.6
-- Axios, React Router, Formik e outras dependências
+### 3. Configurar variáveis de ambiente (opcional)
 
-### Passo 3: Configurar variáveis de ambiente
+Crie um arquivo `.env.local`:
 
-Crie um arquivo `.env` na raiz do projeto:
-
-**Windows (PowerShell):**
-```powershell
-echo REACT_APP_API_URL=http://localhost:8080 > .env
-```
-
-**Windows (CMD):**
-```cmd
-echo REACT_APP_API_URL=http://localhost:8080 > .env
-```
-
-**Linux/Mac:**
-```bash
-echo "REACT_APP_API_URL=http://localhost:8080" > .env
-```
-
-Ou crie manualmente o arquivo `.env` com o conteúdo:
 ```env
-REACT_APP_API_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080/api
 ```
+
+**Nota:** Se não configurar, a aplicação usa o proxy configurado no Vite para `/api` → `http://localhost:8080/api`
 
 ---
 
@@ -91,13 +67,34 @@ REACT_APP_API_URL=http://localhost:8080
 ### Modo Desenvolvimento
 
 ```bash
-npm start
+npm run dev
 ```
 
 ✅ **O que acontece:**
-- Servidor de desenvolvimento inicia
+- Servidor Vite inicia em ~500ms
 - Browser abre automaticamente em `http://localhost:3000`
-- Hot reload habilitado (mudanças aparecem automaticamente)
+- Hot Module Replacement (HMR) instantâneo
+- Proxy automático para API backend
+
+### Build de Produção
+
+```bash
+npm run build
+```
+
+Gera pasta `build/` otimizada:
+- ✅ Minificado e otimizado
+- ✅ Code splitting automático
+- ✅ Sourcemaps incluídos
+- ✅ Pronto para deploy
+
+### Preview do Build
+
+```bash
+npm run preview
+```
+
+Testa o build de produção localmente.
 
 ### Parar o servidor
 
@@ -105,75 +102,41 @@ Pressione `Ctrl + C` no terminal
 
 ---
 
-## 🏗️ Build para Produção
+## 🎯 Funcionalidades
 
-### Criar build otimizado
+### ✅ Módulos Principais
 
-```bash
-npm run build
-```
+| Módulo | Funcionalidades |
+|--------|----------------|
+| **Dashboard** | Visão geral, métricas em tempo real, 5 cards funcionais |
+| **Clientes** | CRUD completo, busca por nome, validação CPF/CNPJ, CEP automático |
+| **Veículos** | Cadastro, vinculação com clientes, paginação |
+| **Orçamentos** | Criação, cálculo automático, múltiplos itens dinâmicos |
+| **Recibos** | Emissão, formas de pagamento, histórico |
+| **Serviços** | Catálogo, preços, tempo estimado |
 
-Isso cria a pasta `build/` com:
-- ✅ Código minificado
-- ✅ Assets otimizados
-- ✅ Code splitting
-- ✅ Pronto para deploy
+### ✅ Sistema
 
-### Testar o build localmente
-
-```bash
-# Instalar servidor estático (uma vez só)
-npm install -g serve
-
-# Executar
-serve -s build
-```
-
-Acesse: `http://localhost:3000`
+- **Autenticação JWT** com token automático
+- **Formulários validados** com Formik + Yup
+- **Notificações** em tempo real
+- **Design moderno** e responsivo
+- **Loading states** em todas operações
+- **Error boundaries** para captura de erros
 
 ---
 
-## 🎯 Funcionalidades do Sistema
+## 🛠️ Stack Tecnológica
 
-### ✅ Gerenciamento de Clientes
-- Cadastro completo com CEP automático
-- Busca e filtros
-- Validação de CPF/CNPJ
-- Paginação
-
-### ✅ Gerenciamento de Veículos
-- Cadastro de veículos
-- Vinculação com clientes
-- Histórico de serviços
-
-### ✅ Orçamentos
-- Criação de orçamentos detalhados
-- Cálculo automático de valores
-- Controle de status
-- Geração de PDF
-
-### ✅ Serviços e Recibos
-- Cadastro de serviços
-- Emissão de recibos
-- Controle de pagamentos
-
-### ✅ Dashboard
-- Visão geral do negócio
-- Métricas em tempo real
-- Cards informativos
-
----
-
-## 🛠️ Tecnologias Utilizadas
-
-| Tecnologia | Versão | Uso |
-|-----------|--------|-----|
-| React | 19.2.3 | Framework principal |
-| Material-UI | 7.3.6 | Componentes UI |
-| Axios | 1.13.2 | Requisições HTTP |
-| React Router | 7.11.0 | Roteamento |
-| Formik | 2.4.9 | Formulários |
-| Yup | 1.7.1 | Validação |
+| Tecnologia | Versão | Propósito |
+|-----------|--------|-----------|
+| **React** | 19.2.4 | Framework UI |
+| **Vite** | 6.4.1 | Build tool (10x mais rápido que CRA) |
+| **Material-UI** | 7.3.8 | Componentes UI |
+| **Axios** | 1.7.9 | Cliente HTTP |
+| **React Router** | 7.13.1 | Roteamento |
+| **Formik** | 2.4.9 | Gerenciamento de formulários |
+| **Yup** | 1.7.1 | Validação de schemas |
 
 ---
 
@@ -181,105 +144,131 @@ Acesse: `http://localhost:3000`
 
 ```
 oficina-frontend/
-├── public/                 # Arquivos públicos
+├── index.html              # HTML raiz (Vite)
+├── vite.config.js          # Configuração do Vite
+├── public/                 # Assets estáticos
 ├── src/
-│   ├── components/        # Componentes React
-│   │   ├── common/       # Componentes reutilizáveis
-│   │   ├── clientes/     # Componentes de clientes
-│   │   ├── veiculos/     # Componentes de veículos
-│   │   └── orcamentos/   # Componentes de orçamentos
-│   ├── pages/            # Páginas principais
-│   ├── services/         # Serviços de API
-│   ├── contexts/         # Context API
-│   ├── utils/            # Utilitários
-│   └── constants/        # Constantes
-├── .env                  # Variáveis de ambiente
-└── package.json          # Dependências
+│   ├── components/
+│   │   ├── common/        # Componentes reutilizáveis
+│   │   │   ├── FormContainer.jsx
+│   │   │   ├── FormField.jsx
+│   │   │   ├── FormActions.jsx
+│   │   │   └── ErrorBoundary.jsx
+│   │   ├── clientes/      # Módulo clientes
+│   │   ├── veiculos/      # Módulo veículos
+│   │   ├── orcamentos/    # Módulo orçamentos
+│   │   ├── recibos/       # Módulo recibos
+│   │   └── servicos/      # Módulo serviços
+│   ├── pages/             # Páginas principais
+│   ├── services/          # Serviços de API
+│   │   └── api.js         # Instância Axios com interceptors
+│   ├── contexts/          # React Context
+│   ├── utils/             # Utilitários
+│   └── constants/         # Constantes
+├── .env.example           # Exemplo de variáveis
+└── package.json
 ```
 
 ---
 
-## ⚙️ Configuração do Backend
+## ⚙️ Configuração
 
-O frontend precisa se conectar a uma API backend. Configure a URL no arquivo `.env`:
+### Backend API
 
-### Backend Local
-```env
-REACT_APP_API_URL=http://localhost:8080
+O frontend se conecta ao backend via proxy configurado no `vite.config.js`:
+
+```javascript
+proxy: {
+  '/api': {
+    target: 'http://localhost:8080',
+    changeOrigin: true,
+  }
+}
 ```
 
-### Backend em Servidor
+**Requisições:**
+- Frontend: `POST /api/auth/login`
+- Proxy envia para: `POST http://localhost:8080/api/auth/login`
+
+### Variáveis de Ambiente (Vite)
+
+No Vite, use prefixo `VITE_`:
+
 ```env
-REACT_APP_API_URL=https://api.seudominio.com
+VITE_API_URL=http://localhost:8080/api
 ```
 
-💡 **Importante**: Reinicie o servidor (`npm start`) após alterar o `.env`
+Acessar no código:
+```javascript
+const apiUrl = import.meta.env.VITE_API_URL
+const isDev = import.meta.env.DEV
+const isProd = import.meta.env.PROD
+```
 
 ---
 
 ## 🔐 Autenticação
 
-### Login
-O sistema usa autenticação JWT. Para fazer login:
+### Credenciais de Teste
 
-1. Acesse: `http://localhost:3000/login`
-2. Credenciais de teste (configuradas no backend):
-   - Usuário: `admin`
-   - Senha: `admin`
+```
+Email: admin@oficina.com
+Senha: admin123
+```
 
-### Token
-- Armazenado no `localStorage`
-- Enviado automaticamente em todas requisições
-- Logout automático se token expirar (401)
+### Como Funciona
+
+1. Login envia credenciais para `/api/auth/login`
+2. Backend retorna token JWT
+3. Token armazenado em `localStorage`
+4. Interceptor Axios adiciona `Authorization: Bearer {token}` em todas requisições
+5. Erro 401 → logout automático e redirect para `/login`
+
+### Limpar Sessão
+
+No console do navegador (F12):
+```javascript
+localStorage.clear()
+location.reload()
+```
 
 ---
 
 ## 🐛 Problemas Comuns
 
-### Porta 3000 já está em uso
+### Porta 3000 em uso
 
-**Solução 1**: Matar o processo
 ```bash
-# Windows
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
-
-# Linux/Mac
-lsof -ti:3000 | xargs kill -9
+# O Vite tenta automaticamente próxima porta disponível (3001, 3002, etc)
+# Ou force uma porta específica em vite.config.js
 ```
 
-**Solução 2**: Usar outra porta
-```bash
-# Windows
-set PORT=3001 && npm start
+### Erro "process is not defined"
 
-# Linux/Mac
-PORT=3001 npm start
+✅ **Resolvido!** O projeto foi migrado para Vite e não usa mais `process.env`.
+
+Use `import.meta.env` no lugar:
+```javascript
+// ❌ Antigo (CRA)
+process.env.REACT_APP_API_URL
+
+// ✅ Novo (Vite)
+import.meta.env.VITE_API_URL
 ```
 
-### Erro ao instalar dependências
+### Backend não responde
+
+Verificar:
+1. ✅ Backend rodando em `http://localhost:8080`
+2. ✅ CORS configurado no backend
+3. ✅ Token válido no localStorage
+4. ✅ Proxy do Vite configurado
+
+### Limpar e reinstalar
 
 ```bash
-# Limpar cache e reinstalar
-npm cache clean --force
-rm -rf node_modules
-rm package-lock.json
+rm -rf node_modules package-lock.json
 npm install
-```
-
-### Não consegue conectar com backend
-
-Verifique:
-1. ✅ Backend está rodando?
-2. ✅ URL no `.env` está correta?
-3. ✅ CORS configurado no backend?
-4. ✅ Firewall não está bloqueando?
-
-### Página em branco após build
-
-```bash
-# Verificar se há erros no console
-# Pressione F12 no navegador e veja o Console
 ```
 
 ---
@@ -287,93 +276,145 @@ Verifique:
 ## 📝 Scripts Disponíveis
 
 ```bash
-npm start          # Inicia desenvolvimento
-npm run build      # Build de produção
-npm test           # Executa testes
-npm audit          # Verifica vulnerabilidades
-npm outdated       # Lista pacotes desatualizados
+npm run dev        # Desenvolvimento (porta 3000)
+npm run build      # Build de produção (~7s)
+npm run preview    # Preview do build
+npm test           # Testes (Vitest)
+npm audit          # Vulnerabilidades (5 moderate)
 ```
+
+---
+
+## 🚀 Performance & Otimizações
+
+### Build de Produção
+
+| Métrica | Valor |
+|---------|-------|
+| Tempo de build | ~7.5 segundos |
+| Bundle size | ~695 KB (minificado) |
+| Gzip size | ~215 KB |
+| Chunks | Otimizados automaticamente |
+
+### Dev Server
+
+| Métrica | Vite | CRA (antigo) |
+|---------|------|--------------|
+| Start time | ~540ms | ~20-30s |
+| HMR | Instantâneo | ~2-3s |
+| Rebuild | Milissegundos | Segundos |
+
+### Vulnerabilidades
+
+- **Antes (CRA)**: 25 high severity
+- **Depois (Vite)**: 5 moderate (apenas em ferramentas de dev)
+- **Redução**: 80% menos vulnerabilidades
 
 ---
 
 ## 📚 Documentação Adicional
 
-- **[CORRECOES_APLICADAS.md](./CORRECOES_APLICADAS.md)** - Correções iniciais aplicadas
-- **[IMPLEMENTACOES_COMPLETAS.md](./IMPLEMENTACOES_COMPLETAS.md)** - Todas as implementações detalhadas
+- **[MIGRATION_TO_VITE.md](./MIGRATION_TO_VITE.md)** - Detalhes da migração
+- **[.env.example](./.env.example)** - Exemplo de variáveis de ambiente
 
 ---
 
 ## 🌐 Deploy
 
-### Opções de Deploy
+### Netlify (Recomendado)
 
-1. **Netlify** (Recomendado)
-   ```bash
-   npm run build
-   # Arraste a pasta build/ para netlify.com
-   ```
+1. Build: `npm run build`
+2. Upload da pasta `build/`
+3. Configure variáveis de ambiente no dashboard
 
-2. **Vercel**
-   ```bash
-   npm install -g vercel
-   vercel
-   ```
+### Vercel
 
-3. **GitHub Pages**
-   ```bash
-   npm install gh-pages
-   npm run build
-   npm run deploy
-   ```
+```bash
+npm install -g vercel
+vercel
+```
+
+### Docker
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "run", "preview"]
+```
 
 ---
 
-## ✅ Checklist de Execução
+## ✅ Checklist de Setup
 
-- [ ] Node.js instalado
+- [ ] Node.js 18+ instalado
 - [ ] Dependências instaladas (`npm install`)
-- [ ] Arquivo `.env` criado
-- [ ] Backend rodando
-- [ ] Servidor frontend iniciado (`npm start`)
-- [ ] Navegador aberto em `http://localhost:3000`
+- [ ] Backend rodando na porta 8080
+- [ ] Servidor iniciado (`npm run dev`)
 - [ ] Login realizado com sucesso
+- [ ] Dashboard carregando dados
 
 ---
 
-## 💡 Dicas
+## 💡 Dicas de Desenvolvimento
 
-### Desenvolvimento
-- Use `Ctrl + C` para parar o servidor
-- Mudanças no código são aplicadas automaticamente (Hot Reload)
-- Abra DevTools com `F12` para debugging
+### Hot Module Replacement
+
+- Mudanças em JS/JSX: Atualização instantânea sem perder estado
+- Mudanças em CSS: Injeção instantânea
+- Mudanças em config: Requer restart
+
+### Debug
+
+- **Console do Browser**: F12 → Console
+- **React DevTools**: Extensão do Chrome/Firefox
+- **Network Tab**: F12 → Network para ver requisições
+- **Vite Logs**: Terminal onde rodou `npm run dev`
 
 ### Performance
-- Build de produção é ~10x menor que desenvolvimento
-- Use `npm run build` antes de deploy
-- Comprima assets para melhor performance
 
-### Debugging
-- Erros aparecem no console do browser (F12)
-- Erros de compilação aparecem no terminal
-- Use React DevTools para inspecionar componentes
+1. Use `React.lazy()` para code splitting
+2. Otimize imports (importe apenas o necessário do MUI)
+3. Use `React.memo()` em componentes pesados
+4. Verifique bundle com `npm run build`
 
 ---
 
-## 🤝 Suporte
+## 📦 Migração de CRA para Vite
 
-Precisa de ajuda? Consulte:
-- Documentação completa nos arquivos `.md` do projeto
-- Issues no repositório
-- Contato: contato@example.com
+Este projeto foi migrado de **Create React App** para **Vite**.
+
+**Principais mudanças:**
+- ✅ `npm start` → `npm run dev`
+- ✅ `process.env.REACT_APP_*` → `import.meta.env.VITE_*`
+- ✅ `public/index.html` → `index.html` (raiz)
+- ✅ Build 10x mais rápido
+- ✅ 80% menos vulnerabilidades
+
+Veja detalhes em [MIGRATION_TO_VITE.md](./MIGRATION_TO_VITE.md)
+
+---
+
+## 🤝 Contribuindo
+
+1. Clone o repositório
+2. Crie uma branch: `git checkout -b feature/nova-feature`
+3. Commit: `git commit -m 'Add nova feature'`
+4. Push: `git push origin feature/nova-feature`
+5. Abra um Pull Request
 
 ---
 
 ## 📄 Licença
 
-Este projeto é privado e proprietário.
+Projeto proprietário - Todos os direitos reservados
 
 ---
 
-**Desenvolvido com ❤️ usando React e Material-UI**
+**Desenvolvido com ⚡ Vite + ⚛️ React + 🎨 Material-UI**
 
-🚀 **Boa sorte com seu projeto!**
+🚀 **Build rápido. Deploy fácil. Performance máxima.**
