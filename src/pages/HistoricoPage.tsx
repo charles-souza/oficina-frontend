@@ -32,14 +32,14 @@ const HistoricoPage: React.FC = () => {
 
   useEffect(() => {
     loadVeiculos();
-    loadHistoricos();
   }, []);
 
   useEffect(() => {
     if (selectedVeiculo) {
       loadHistoricosByVeiculo(selectedVeiculo as number);
     } else {
-      loadHistoricos();
+      // Limpa o histórico quando nenhum veículo está selecionado
+      setHistoricos([]);
     }
   }, [selectedVeiculo]);
 
@@ -52,18 +52,6 @@ const HistoricoPage: React.FC = () => {
       showNotification('Erro ao carregar veículos', 'error');
     } finally {
       setLoadingVeiculos(false);
-    }
-  };
-
-  const loadHistoricos = async () => {
-    setLoading(true);
-    try {
-      const response = await historicoService.getAll(0, 50);
-      setHistoricos(response.content);
-    } catch (error) {
-      showNotification('Erro ao carregar histórico', 'error');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -82,8 +70,6 @@ const HistoricoPage: React.FC = () => {
   const handleRefresh = () => {
     if (selectedVeiculo) {
       loadHistoricosByVeiculo(selectedVeiculo as number);
-    } else {
-      loadHistoricos();
     }
   };
 
@@ -154,6 +140,24 @@ const HistoricoPage: React.FC = () => {
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />
         </Box>
+      ) : !selectedVeiculo ? (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Selecione um veículo
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Escolha um veículo no filtro acima para visualizar seu histórico de serviços
+          </Typography>
+        </Paper>
+      ) : historicos.length === 0 ? (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Nenhum histórico encontrado
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Este veículo ainda não possui histórico de serviços registrado
+          </Typography>
+        </Paper>
       ) : (
         <HistoricoTimeline historicos={historicos} />
       )}
