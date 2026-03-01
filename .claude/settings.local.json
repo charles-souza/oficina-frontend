@@ -14,7 +14,10 @@
       "Bash(npm run:*)",
       "Bash(sleep 5:*)",
       "Bash(curl:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(cd C:\\\\projetos\\\\oficina-frontend:*)",
+      "Bash(wc:*)",
+      "Bash(taskkill:*)"
     ]
   }
 }

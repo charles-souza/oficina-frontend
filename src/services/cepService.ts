@@ -1,16 +1,33 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const VIA_CEP_BASE = 'https://viacep.com.br/ws';
 
+interface CepResponse {
+  logradouro?: string;
+  complemento?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
+  erro?: boolean;
+}
+
+interface AddressData {
+  rua: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+}
+
 const cepService = {
-  async getAddressByCep(cep, signal = null) {
+  async getAddressByCep(cep: string, signal: AbortSignal | null = null): Promise<AddressData> {
     if (!cep) throw new Error('CEP é obrigatório');
     const cleaned = String(cep).replace(/\D/g, '');
     if (cleaned.length !== 8) throw new Error('CEP inválido');
 
     try {
-      const response = await axios.get(`${VIA_CEP_BASE}/${cleaned}/json/`, {
-        signal,
+      const response = await axios.get<CepResponse>(`${VIA_CEP_BASE}/${cleaned}/json/`, {
+        signal: signal || undefined,
       });
       const data = response.data;
       if (!data) throw new Error('Resposta vazia da API ViaCep');
@@ -24,7 +41,8 @@ const cepService = {
         estado: data.uf || '',
       };
     } catch (err) {
-      if (err.response && err.response.status === 400) {
+      const error = err as AxiosError;
+      if (error.response && error.response.status === 400) {
         throw new Error('CEP inválido');
       }
       throw err;

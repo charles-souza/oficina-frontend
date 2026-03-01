@@ -1,5 +1,6 @@
 import api from './api';
 import { withErrorHandling } from '../utils/errorHandler';
+import { Recibo, PaginatedResponse } from '../types';
 
 const ERROR_MESSAGES_RECIBOS = {
   LOAD: 'Erro ao carregar recibos.',
@@ -8,57 +9,57 @@ const ERROR_MESSAGES_RECIBOS = {
 };
 
 export const reciboService = {
-  getAll: async (page = 0, size = 10) => {
+  getAll: async (page = 0, size = 10): Promise<PaginatedResponse<Recibo> | Recibo[]> => {
     return withErrorHandling(
       async () => {
-        const response = await api.get('/recibos', { params: { page, size } });
+        const response = await api.get<PaginatedResponse<Recibo> | Recibo[]>('/recibos', { params: { page, size } });
         return response.data;
       },
       ERROR_MESSAGES_RECIBOS.LOAD
     );
   },
 
-  getById: async (id) => {
+  getById: async (id: number): Promise<Recibo> => {
     return withErrorHandling(
       async () => {
-        const response = await api.get(`/recibos/${id}`);
+        const response = await api.get<Recibo>(`/recibos/${id}`);
         return response.data;
       },
       ERROR_MESSAGES_RECIBOS.LOAD
     );
   },
 
-  getByOrcamentoId: async (orcamentoId) => {
+  getByOrcamentoId: async (orcamentoId: number): Promise<Recibo[]> => {
     return withErrorHandling(
       async () => {
-        const response = await api.get(`/recibos/orcamento/${orcamentoId}`);
+        const response = await api.get<Recibo[]>(`/recibos/orcamento/${orcamentoId}`);
         return response.data;
       },
       ERROR_MESSAGES_RECIBOS.LOAD
     );
   },
 
-  create: async (recibo) => {
+  create: async (recibo: Omit<Recibo, 'id'>): Promise<Recibo> => {
     return withErrorHandling(
       async () => {
-        const response = await api.post('/recibos', recibo);
+        const response = await api.post<Recibo>('/recibos', recibo);
         return response.data;
       },
       ERROR_MESSAGES_RECIBOS.SAVE
     );
   },
 
-  update: async (id, recibo) => {
+  update: async (id: number, recibo: Partial<Recibo>): Promise<Recibo> => {
     return withErrorHandling(
       async () => {
-        const response = await api.put(`/recibos/${id}`, recibo);
+        const response = await api.put<Recibo>(`/recibos/${id}`, recibo);
         return response.data;
       },
       ERROR_MESSAGES_RECIBOS.SAVE
     );
   },
 
-  delete: async (id) => {
+  delete: async (id: number): Promise<void> => {
     return withErrorHandling(
       async () => {
         await api.delete(`/recibos/${id}`);

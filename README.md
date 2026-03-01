@@ -1,6 +1,6 @@
 # 🚗 Oficina Frontend - Sistema de Gerenciamento de Oficina
 
-Sistema SaaS para gestão de oficinas mecânicas, desenvolvido em **React 19** com **Material-UI 7** e **Vite**.
+Sistema SaaS para gestão de oficinas mecânicas, desenvolvido em **React 19** com **TypeScript**, **Material-UI 7** e **Vite**.
 
 ---
 
@@ -131,6 +131,7 @@ Pressione `Ctrl + C` no terminal
 | Tecnologia | Versão | Propósito |
 |-----------|--------|-----------|
 | **React** | 19.2.4 | Framework UI |
+| **TypeScript** | 5.x | Type safety e melhor DX |
 | **Vite** | 6.4.1 | Build tool (10x mais rápido que CRA) |
 | **Material-UI** | 7.3.8 | Componentes UI |
 | **Axios** | 1.7.9 | Cliente HTTP |
@@ -145,7 +146,8 @@ Pressione `Ctrl + C` no terminal
 ```
 oficina-frontend/
 ├── index.html              # HTML raiz (Vite)
-├── vite.config.js          # Configuração do Vite
+├── vite.config.ts          # Configuração do Vite
+├── tsconfig.json           # Configuração do TypeScript
 ├── public/                 # Assets estáticos
 ├── src/
 │   ├── components/
@@ -384,7 +386,9 @@ CMD ["npm", "run", "preview"]
 
 ---
 
-## 📦 Migração de CRA para Vite
+## 📦 Migrações Realizadas
+
+### Migração de CRA para Vite
 
 Este projeto foi migrado de **Create React App** para **Vite**.
 
@@ -395,7 +399,23 @@ Este projeto foi migrado de **Create React App** para **Vite**.
 - ✅ Build 10x mais rápido
 - ✅ 80% menos vulnerabilidades
 
-Veja detalhes em [MIGRATION_TO_VITE.md](./MIGRATION_TO_VITE.md)
+### Migração para TypeScript
+
+Projeto completamente migrado para **TypeScript** para melhor segurança de tipos e DX.
+
+**Arquivos migrados:**
+- ✅ Todos os arquivos `.js` → `.ts`
+- ✅ Todos os arquivos `.jsx` → `.tsx`
+- ✅ Configuração `tsconfig.json` com strict mode
+- ✅ Tipos definidos para todas as entidades (Cliente, Veículo, Orçamento, etc.)
+- ✅ Services com tipos genéricos para APIs
+- ✅ Configuração Vite atualizada para TypeScript
+
+**Benefícios:**
+- Type safety em todo o código
+- Autocomplete e IntelliSense aprimorados
+- Detecção de erros em tempo de desenvolvimento
+- Refatoração mais segura
 
 ---
 
