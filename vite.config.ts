@@ -1,18 +1,31 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/setupTests.ts',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockData',
+        'dist/',
+      ],
+    },
+  },
   plugins: [
     react({
       // Habilita Fast Refresh
       fastRefresh: true,
-      // Remove PropTypes em produção
-      babel: {
-        plugins: [
-          ['babel-plugin-transform-remove-console', { exclude: ['error', 'warn'] }]
-        ]
-      }
     }),
     // Analisa bundle size (apenas em build)
     visualizer({
