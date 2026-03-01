@@ -6,6 +6,7 @@ import VeiculosPage from './pages/VeiculosPage';
 import OrcamentosPage from './pages/OrcamentosPage';
 import RecibosPage from './pages/RecibosPage';
 import ServicosPage from './pages/ServicosPage';
+import OrdensServicoPage from './pages/OrdensServicoPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ClienteForm from './components/clientes/ClienteForm';
@@ -55,6 +56,10 @@ const AppRoutes = () => {
 
         <Route path="servicos">
           <Route index element={<ServicosPage />} />
+        </Route>
+
+        <Route path="ordens-servico">
+          <Route index element={<OrdensServicoPage />} />
         </Route>
       </Route>
       

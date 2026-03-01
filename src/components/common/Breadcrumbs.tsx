@@ -12,10 +12,10 @@ const routeTitles: Record<string, string> = {
   [ROUTES.QUOTES]: 'Orçamentos',
   [ROUTES.RECEIPTS]: 'Recibos',
   [ROUTES.SERVICES]: 'Serviços',
-  '/ordens-servico': 'Ordens de Serviço',
-  '/historico': 'Histórico',
-  '/perfil': 'Perfil',
-  '/configuracoes': 'Configurações',
+  [ROUTES.SERVICE_ORDERS]: 'Ordens de Serviço',
+  [ROUTES.HISTORY]: 'Histórico',
+  [ROUTES.PROFILE]: 'Perfil',
+  [ROUTES.SETTINGS]: 'Configurações',
 };
 
 const Breadcrumbs: React.FC = () => {

@@ -49,6 +49,10 @@ export const ROUTES = {
   QUOTES: '/orcamentos',
   RECEIPTS: '/recibos',
   SERVICES: '/servicos',
+  SERVICE_ORDERS: '/ordens-servico',
+  HISTORY: '/historico',
+  PROFILE: '/perfil',
+  SETTINGS: '/configuracoes',
 } as const;
 
 export const PAGINATION = {
