@@ -26,24 +26,22 @@ export const ordemServicoService = {
       params.status = status;
     }
 
-    const response = await api.get<PaginatedResponse<OrdemServico>>(BASE_URL, {
+    const response = await api.get<PaginatedResponse<OrdemServico> | OrdemServico[]>(BASE_URL, {
       params,
     });
 
-    console.log('API Response:', response);
-    console.log('Response data:', response.data);
-
-    // Verificar se é array direto ou objeto paginado
+    // Backend retorna array diretamente, não objeto paginado
     if (Array.isArray(response.data)) {
       return {
         content: response.data,
         totalElements: response.data.length,
-        totalPages: 1,
-        size: response.data.length,
-        number: 0,
+        totalPages: Math.ceil(response.data.length / size),
+        size: size,
+        number: page,
       };
     }
 
+    // Se vier objeto paginado (compatibilidade futura)
     return response.data;
   },
 

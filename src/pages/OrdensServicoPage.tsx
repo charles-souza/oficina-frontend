@@ -8,7 +8,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid,
+  Stack,
 } from '@mui/material';
 import { Add, Refresh } from '@mui/icons-material';
 import OrdemServicoList from '../components/ordens-servico/OrdemServicoList';
@@ -55,8 +55,6 @@ const OrdensServicoPage: React.FC = () => {
         rowsPerPage,
         statusFilter || undefined
       );
-      console.log('Response ordens:', response);
-      console.log('Content:', response.content);
       setOrdens(response.content);
       setTotalElements(response.totalElements);
     } catch (error) {
@@ -153,50 +151,48 @@ const OrdensServicoPage: React.FC = () => {
 
       {/* Ações e Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid xs={12} sm={6} md={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Filtrar por Status</InputLabel>
-              <Select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value as OrdemServicoStatus | '');
-                  setPage(0);
-                }}
-                label="Filtrar por Status"
-              >
-                <MenuItem value="">
-                  <em>Todos</em>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+          <FormControl sx={{ minWidth: 200, flex: { xs: 1, sm: 'initial' } }} size="small">
+            <InputLabel>Filtrar por Status</InputLabel>
+            <Select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as OrdemServicoStatus | '');
+                setPage(0);
+              }}
+              label="Filtrar por Status"
+            >
+              <MenuItem value="">
+                <em>Todos</em>
+              </MenuItem>
+              {Object.values(OrdemServicoStatus).map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status.replace(/_/g, ' ')}
                 </MenuItem>
-                {Object.values(OrdemServicoStatus).map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status.replace(/_/g, ' ')}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid xs={12} sm={6} md={8}>
-            <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={loadOrdens}
-                disabled={loading}
-              >
-                Atualizar
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={() => handleOpenModal()}
-              >
-                Nova Ordem
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
+          <Box sx={{ flex: 1 }} />
+
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={loadOrdens}
+              disabled={loading}
+            >
+              Atualizar
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => handleOpenModal()}
+            >
+              Nova Ordem
+            </Button>
+          </Stack>
+        </Stack>
       </Paper>
 
       {/* Lista de Ordens */}
