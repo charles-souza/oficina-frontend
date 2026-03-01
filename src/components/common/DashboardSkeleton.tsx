@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Paper, Skeleton } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 
 const DashboardSkeleton: React.FC = () => {
   return (
@@ -19,60 +18,60 @@ const DashboardSkeleton: React.FC = () => {
       </Paper>
 
       {/* Metric Cards Skeleton */}
-      <Grid container spacing={3} mb={3}>
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }} gap={3} mb={3}>
         {Array.from({ length: 4 }).map((_, index) => (
-          <Grid key={index} xs={12} sm={6} md={3}>
+          <Box key={index}>
             <Paper sx={{ p: 3 }}>
               <Skeleton variant="text" width="60%" height={24} />
               <Skeleton variant="text" width="40%" height={48} sx={{ my: 1 }} />
               <Skeleton variant="text" width="50%" height={20} />
             </Paper>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Status Cards Skeleton */}
-      <Grid container spacing={3} mb={3}>
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }} gap={3} mb={3}>
         {Array.from({ length: 4 }).map((_, index) => (
-          <Grid key={index} xs={12} sm={6} md={3}>
+          <Box key={index}>
             <Paper sx={{ p: 3 }}>
               <Skeleton variant="text" width="60%" height={24} />
               <Skeleton variant="text" width="40%" height={48} sx={{ my: 1 }} />
               <Skeleton variant="text" width="50%" height={20} />
             </Paper>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
       {/* Charts Skeleton */}
-      <Grid container spacing={3} mb={3}>
-        <Grid xs={12} md={6}>
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '1fr 1fr' }} gap={3} mb={3}>
+        <Box>
           <Paper sx={{ p: 3 }}>
             <Skeleton variant="text" width="40%" height={28} sx={{ mb: 1 }} />
             <Skeleton variant="text" width="60%" height={20} sx={{ mb: 2 }} />
             <Skeleton variant="rectangular" height={300} />
           </Paper>
-        </Grid>
-        <Grid xs={12} md={6}>
+        </Box>
+        <Box>
           <Paper sx={{ p: 3 }}>
             <Skeleton variant="text" width="40%" height={28} sx={{ mb: 1 }} />
             <Skeleton variant="text" width="60%" height={20} sx={{ mb: 2 }} />
             <Skeleton variant="rectangular" height={300} />
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Revenue Cards Skeleton */}
-      <Grid container spacing={3}>
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, 1fr)' }} gap={3}>
         {Array.from({ length: 3 }).map((_, index) => (
-          <Grid key={index} xs={12} md={4}>
+          <Box key={index}>
             <Paper sx={{ p: 3, textAlign: 'center' }}>
               <Skeleton variant="text" width="60%" height={24} sx={{ mx: 'auto', mb: 1 }} />
               <Skeleton variant="text" width="80%" height={48} sx={{ mx: 'auto' }} />
             </Paper>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 };

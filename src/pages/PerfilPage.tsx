@@ -10,7 +10,6 @@ import {
   Stack,
   Chip,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import {
   Person,
   Email,
@@ -89,9 +88,9 @@ const PerfilPage: React.FC = () => {
       </Paper>
 
       {/* Conteúdo */}
-      <Grid container spacing={3}>
+      <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '1fr 2fr' }} gap={3}>
         {/* Card do Avatar */}
-        <Grid xs={12} md={4}>
+        <Box>
           <Paper sx={{ p: 3, textAlign: 'center' }}>
             <Avatar
               sx={{
@@ -129,10 +128,10 @@ const PerfilPage: React.FC = () => {
               Janeiro 2024
             </Typography>
           </Paper>
-        </Grid>
+        </Box>
 
         {/* Card de Informações */}
-        <Grid xs={12} md={8}>
+        <Box>
           <Paper sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
               <Typography variant="h6" fontWeight={600}>
@@ -259,8 +258,8 @@ const PerfilPage: React.FC = () => {
               </Box>
             </Stack>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };
