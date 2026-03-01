@@ -19,7 +19,8 @@
       "Bash(wc:*)",
       "Bash(taskkill:*)",
       "Bash(done)",
-      "Bash(find src -name \"*.tsx\" -type f -exec grep -l \"Grid item\" {} ;)"
+      "Bash(find src -name \"*.tsx\" -type f -exec grep -l \"Grid item\" {} ;)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -4,10 +4,23 @@ import { ERROR_MESSAGES } from '../constants';
 import { Veiculo, PaginatedResponse } from '../types';
 
 export const veiculoService = {
-  getAll: async (page = 0, size = 10): Promise<PaginatedResponse<Veiculo> | Veiculo[]> => {
+  getAll: async (page = 0, size = 10): Promise<PaginatedResponse<Veiculo>> => {
     return withErrorHandling(
       async () => {
         const response = await api.get<PaginatedResponse<Veiculo> | Veiculo[]>('/veiculos', { params: { page, size } });
+
+        // Backend retorna array diretamente, não objeto paginado
+        if (Array.isArray(response.data)) {
+          return {
+            content: response.data,
+            totalElements: response.data.length,
+            totalPages: Math.ceil(response.data.length / size),
+            size: size,
+            number: page,
+          };
+        }
+
+        // Se vier objeto paginado (compatibilidade futura)
         return response.data;
       },
       ERROR_MESSAGES.LOAD_VEHICLES

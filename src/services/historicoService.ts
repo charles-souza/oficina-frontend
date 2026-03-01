@@ -11,9 +11,22 @@ export const historicoService = {
     page: number = 0,
     size: number = 10
   ): Promise<PaginatedResponse<HistoricoServico>> => {
-    const response = await api.get<PaginatedResponse<HistoricoServico>>(BASE_URL, {
+    const response = await api.get<PaginatedResponse<HistoricoServico> | HistoricoServico[]>(BASE_URL, {
       params: { page, size },
     });
+
+    // Backend retorna array diretamente, não objeto paginado
+    if (Array.isArray(response.data)) {
+      return {
+        content: response.data,
+        totalElements: response.data.length,
+        totalPages: Math.ceil(response.data.length / size),
+        size: size,
+        number: page,
+      };
+    }
+
+    // Se vier objeto paginado (compatibilidade futura)
     return response.data;
   },
 

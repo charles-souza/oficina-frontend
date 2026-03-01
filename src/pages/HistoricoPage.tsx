@@ -8,7 +8,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid,
+  Stack,
   CircularProgress,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
@@ -110,41 +110,43 @@ const HistoricoPage: React.FC = () => {
 
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid xs={12} sm={6} md={4}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Filtrar por Veículo</InputLabel>
-              <Select
-                value={selectedVeiculo}
-                onChange={(e) => setSelectedVeiculo(e.target.value as number | '')}
-                label="Filtrar por Veículo"
-                disabled={loadingVeiculos}
-              >
-                <MenuItem value="">
-                  <em>Todos os veículos</em>
-                </MenuItem>
-                {veiculos.map((veiculo) => (
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+        >
+          <FormControl sx={{ minWidth: { xs: '100%', sm: 300 } }} size="small">
+            <InputLabel>Filtrar por Veículo</InputLabel>
+            <Select
+              value={selectedVeiculo}
+              onChange={(e) => setSelectedVeiculo(e.target.value as number | '')}
+              label="Filtrar por Veículo"
+              disabled={loadingVeiculos}
+            >
+              <MenuItem value="">
+                <em>Todos os veículos</em>
+              </MenuItem>
+              {veiculos && veiculos.length > 0 ? (
+                veiculos.map((veiculo) => (
                   <MenuItem key={veiculo.id} value={veiculo.id}>
                     {veiculo.placa} - {veiculo.marca} {veiculo.modelo}
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+                ))
+              ) : null}
+            </Select>
+          </FormControl>
 
-          <Grid xs={12} sm={6} md={8}>
-            <Box display="flex" gap={2} justifyContent="flex-end">
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={handleRefresh}
-                disabled={loading}
-              >
-                Atualizar
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
+          <Box sx={{ flex: 1 }} />
+
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            Atualizar
+          </Button>
+        </Stack>
       </Paper>
 
       {/* Timeline de Histórico */}
