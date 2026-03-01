@@ -31,9 +31,8 @@ const LoginPage = () => {
       if (data && (data.token || data.accessToken)) {
         const token = data.token || data.accessToken;
         localStorage.setItem('token', token);
-        navigate('/');
+        window.location.href = '/';
       } else {
-        console.error('Login response has no token:', data);
         setError('Resposta do servidor não contém token.');
       }
     } catch (err) {
