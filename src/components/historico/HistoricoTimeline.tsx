@@ -84,7 +84,7 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
   return (
     <Timeline position="right">
       {historicos.map((historico, index) => {
-        const config = eventoConfig[historico.tipoEvento];
+        const config = eventoConfig[historico.tipoEvento] || { icon: <Edit />, color: 'info' as const };
         const isLast = index === historicos.length - 1;
 
         return (
@@ -140,13 +140,13 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
                 {historico.statusAnterior && historico.statusNovo && (
                   <Box display="flex" alignItems="center" gap={1} mb={1}>
                     <Chip
-                      label={statusLabels[historico.statusAnterior]}
+                      label={statusLabels[historico.statusAnterior] || historico.statusAnterior}
                       size="small"
                       variant="outlined"
                     />
                     <Typography variant="body2">→</Typography>
                     <Chip
-                      label={statusLabels[historico.statusNovo]}
+                      label={statusLabels[historico.statusNovo] || historico.statusNovo}
                       size="small"
                       color="primary"
                     />
