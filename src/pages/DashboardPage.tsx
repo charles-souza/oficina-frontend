@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import MetricCard from '../components/dashboard/MetricCard';
 import ChartCard from '../components/dashboard/ChartCard';
+import DashboardSkeleton from '../components/common/DashboardSkeleton';
 import { dashboardService, DashboardMetrics } from '../services/dashboardService';
 import { useNotification } from '../contexts/NotificationContext';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -59,11 +60,7 @@ const DashboardPage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress size={60} />
-      </Box>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!metrics) {
