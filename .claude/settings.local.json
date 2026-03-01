@@ -21,7 +21,8 @@
       "Bash(done)",
       "Bash(find src -name \"*.tsx\" -type f -exec grep -l \"Grid item\" {} ;)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(cat:*)"
     ]
   }
 }

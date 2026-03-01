@@ -1,0 +1,10 @@
+{
+  "extends": ["./.eslintrc.cjs"],
+  "rules": {
+    "react/jsx-no-bind": "warn",
+    "react/jsx-no-constructed-context-values": "warn",
+    "react/no-array-index-key": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
+  }
+}

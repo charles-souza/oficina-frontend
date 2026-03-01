@@ -1,8 +1,27 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Habilita Fast Refresh
+      fastRefresh: true,
+      // Remove PropTypes em produção
+      babel: {
+        plugins: [
+          ['babel-plugin-transform-remove-console', { exclude: ['error', 'warn'] }]
+        ]
+      }
+    }),
+    // Analisa bundle size (apenas em build)
+    visualizer({
+      open: false,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }) as any,
+  ],
   server: {
     port: 3000,
     open: true,
@@ -28,9 +47,67 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
-    sourcemap: true,
+    // Sourcemaps apenas em desenvolvimento
+    sourcemap: false,
+    // Minificação com terser (melhor compressão)
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    // Otimizações de chunk
+    rollupOptions: {
+      output: {
+        // Estratégia de chunking manual
+        manualChunks: {
+          // Vendor chunks separados
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'mui-core': ['@mui/material', '@emotion/react', '@emotion/styled'],
+          'mui-icons': ['@mui/icons-material'],
+          'mui-lab': ['@mui/lab'],
+          'charts': ['recharts'],
+          'forms': ['formik', 'yup'],
+          'utils': ['axios', 'date-fns'],
+        },
+        // Nomes de chunks otimizados
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
+    },
+    // Aumenta limite de aviso de chunk
+    chunkSizeWarningLimit: 1000,
+    // CSS code splitting
+    cssCodeSplit: true,
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    // Alias para imports mais limpos
+    alias: {
+      '@': '/src',
+      '@components': '/src/components',
+      '@pages': '/src/pages',
+      '@services': '/src/services',
+      '@hooks': '/src/hooks',
+      '@utils': '/src/utils',
+      '@types': '/src/types',
+      '@contexts': '/src/contexts',
+      '@validations': '/src/validations',
+    },
+  },
+  // Otimizações de dependências
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@mui/material',
+      '@mui/icons-material',
+      'axios',
+      'date-fns',
+    ],
+    exclude: ['@mui/lab'],
   },
 });
