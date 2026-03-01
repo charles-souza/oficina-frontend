@@ -31,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import MetricCard from '../components/dashboard/MetricCard';
 import ChartCard from '../components/dashboard/ChartCard';
-import dashboardService, { DashboardMetrics } from '../services/dashboardService';
+import { dashboardService, DashboardMetrics } from '../services/dashboardService';
 import { useNotification } from '../contexts/NotificationContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 

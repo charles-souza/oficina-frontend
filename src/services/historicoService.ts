@@ -55,5 +55,3 @@ export const historicoService = {
     return response.data;
   },
 };
-
-export default historicoService;

@@ -14,8 +14,8 @@ import {
 import { Refresh } from '@mui/icons-material';
 import HistoricoTimeline from '../components/historico/HistoricoTimeline';
 import { useNotification } from '../contexts/NotificationContext';
-import historicoService from '../services/historicoService';
-import veiculoService from '../services/veiculoService';
+import { historicoService } from '../services/historicoService';
+import { veiculoService } from '../services/veiculoService';
 import { HistoricoServico, Veiculo } from '../types/api';
 import { usePageTitle } from '../hooks/usePageTitle';
 

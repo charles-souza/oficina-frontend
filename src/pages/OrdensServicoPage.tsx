@@ -15,7 +15,7 @@ import OrdemServicoList from '../components/ordens-servico/OrdemServicoList';
 import OrdemServicoFormModal from '../components/ordens-servico/OrdemServicoFormModal';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useNotification } from '../contexts/NotificationContext';
-import ordemServicoService from '../services/ordemServicoService';
+import { ordemServicoService } from '../services/ordemServicoService';
 import {
   OrdemServico,
   OrdemServicoRequest,

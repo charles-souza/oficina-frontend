@@ -49,5 +49,3 @@ const cepService = {
     }
   },
 };
-
-export default cepService;

@@ -114,5 +114,3 @@ export const ordemServicoService = {
     return response.data;
   },
 };
-
-export default ordemServicoService;

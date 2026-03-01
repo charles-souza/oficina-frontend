@@ -67,5 +67,3 @@ export const dashboardService = {
     return response.data;
   },
 };
-
-export default dashboardService;

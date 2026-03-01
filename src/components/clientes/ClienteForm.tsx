@@ -17,7 +17,7 @@ import FormField from '../common/FormField';
 import FormSection from '../common/FormSection';
 import FormActions from '../common/FormActions';
 import { clienteService } from '../../services/clienteService';
-import cepService from '../../services/cepService';
+import { cepService } from '../../services/cepService';
 import { useNotification } from '../../contexts/NotificationContext';
 import { onlyDigits, formatCpfCnpj, formatTelefone, formatCep } from '../../utils/formatters';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';

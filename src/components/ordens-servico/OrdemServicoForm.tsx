@@ -25,8 +25,8 @@ import {
   Cliente,
   Veiculo,
 } from '../../types/api';
-import clienteService from '../../services/clienteService';
-import veiculoService from '../../services/veiculoService';
+import { clienteService } from '../../services/clienteService';
+import { veiculoService } from '../../services/veiculoService';
 
 interface OrdemServicoFormProps {
   initialValues?: OrdemServicoRequest;
