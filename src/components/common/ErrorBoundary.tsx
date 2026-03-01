@@ -1,50 +1,93 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Button, Paper, Container } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import {
+  Box,
+  Button,
+  Container,
+  Paper,
+  Typography,
+  Alert,
+  AlertTitle,
+  Stack,
+} from '@mui/material';
+import { Refresh, Home, BugReport } from '@mui/icons-material';
+import { ErrorLogger, normalizeError } from '../../utils/errorHandling';
 
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+}
+
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null,
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
+    return {
+      hasError: true,
+      error,
       errorInfo: null,
     };
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    const logger = ErrorLogger.getInstance();
+    const normalizedError = normalizeError(error);
 
-  componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    logger.log({
+      ...normalizedError,
+      details: {
+        ...normalizedError.details,
+        componentStack: errorInfo.componentStack,
+      },
+    });
+
     this.setState({
       error,
       errorInfo,
     });
+
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  handleReset = () => {
+  private handleReset = () => {
     this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
     });
-    window.location.href = '/dashboard';
   };
 
-  render() {
+  private handleGoHome = () => {
+    window.location.href = '/';
+  };
+
+  private handleReload = () => {
+    window.location.reload();
+  };
+
+  public render() {
     if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+
       return (
         <Container maxWidth="md">
           <Box
             sx={{
+              minHeight: '100vh',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: '100vh',
               py: 4,
             }}
           >
@@ -53,53 +96,82 @@ class ErrorBoundary extends Component {
               sx={{
                 p: 4,
                 textAlign: 'center',
-                maxWidth: 600,
+                width: '100%',
               }}
             >
-              <ErrorOutlineIcon
-                color="error"
-                sx={{ fontSize: 80, mb: 2 }}
-              />
-              <Typography variant="h4" gutterBottom color="error">
-                Ops! Algo deu errado
+              <Box
+                sx={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: '50%',
+                  bgcolor: 'error.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 24px',
+                }}
+              >
+                <BugReport sx={{ fontSize: 40, color: 'white' }} />
+              </Box>
+
+              <Typography variant="h4" fontWeight={700} gutterBottom>
+                Oops! Algo deu errado
               </Typography>
-              <Typography variant="body1" color="text.secondary" paragraph>
-                Ocorreu um erro inesperado na aplicação. Tente recarregar a página ou voltar para o início.
+
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                Ocorreu um erro inesperado na aplicação. Nossa equipe foi
+                notificada e estamos trabalhando para resolver o problema.
               </Typography>
 
               {import.meta.env.DEV && this.state.error && (
-                <Box
-                  sx={{
-                    mt: 3,
-                    p: 2,
-                    backgroundColor: 'grey.100',
-                    borderRadius: 1,
-                    textAlign: 'left',
-                    maxHeight: 200,
-                    overflow: 'auto',
-                  }}
-                >
-                  <Typography variant="caption" component="pre" sx={{ fontSize: '0.75rem' }}>
+                <Alert severity="error" sx={{ mb: 3, textAlign: 'left' }}>
+                  <AlertTitle>Detalhes do Erro (Modo Desenvolvimento)</AlertTitle>
+                  <Typography variant="body2" component="pre" sx={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>
                     {this.state.error.toString()}
-                    {this.state.errorInfo && this.state.errorInfo.componentStack}
                   </Typography>
-                </Box>
+                  {this.state.errorInfo && (
+                    <Typography
+                      variant="caption"
+                      component="pre"
+                      sx={{
+                        fontFamily: 'monospace',
+                        fontSize: '0.75rem',
+                        mt: 1,
+                        maxHeight: 200,
+                        overflow: 'auto',
+                      }}
+                    >
+                      {this.state.errorInfo.componentStack}
+                    </Typography>
+                  )}
+                </Alert>
               )}
 
-              <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={2}
+                justifyContent="center"
+              >
                 <Button
-                  variant="outlined"
-                  onClick={() => window.location.reload()}
+                  variant="contained"
+                  startIcon={<Refresh />}
+                  onClick={this.handleReload}
                 >
                   Recarregar Página
                 </Button>
                 <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={this.handleReset}
+                  variant="outlined"
+                  startIcon={<Home />}
+                  onClick={this.handleGoHome}
                 >
-                  Ir para Dashboard
+                  Ir para Início
                 </Button>
+              </Stack>
+
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Se o problema persistir, entre em contato com o suporte
+                </Typography>
               </Box>
             </Paper>
           </Box>
@@ -110,9 +182,5 @@ class ErrorBoundary extends Component {
     return this.props.children;
   }
 }
-
-ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired,
-};
 
 export default ErrorBoundary;
