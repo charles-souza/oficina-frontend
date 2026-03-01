@@ -1,209 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Card, CardContent, Typography, Box, CircularProgress, IconButton, Fade, Grow } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import React from 'react';
+import { Card, CardContent, Typography, Box, Avatar } from '@mui/material';
+import { SvgIconComponent } from '@mui/icons-material';
 
-const MetricCard = ({ title, subtitle, fetchTotal, linkTo, icon: Icon, gradient, delay = 0 }) => {
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const loadTotal = async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const count = await fetchTotal();
-      setTotal(count || 0);
-    } catch (e) {
-      console.error(`Erro ao carregar total de ${title}:`, e);
-      setError(true);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
+interface MetricCardProps {
+  title: string;
+  value: number | string;
+  icon: SvgIconComponent;
+  color?: string;
+  subtitle?: string;
+  trend?: {
+    value: number;
+    isPositive: boolean;
   };
+}
 
-  useEffect(() => {
-    loadTotal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  icon: Icon,
+  color = '#667eea',
+  subtitle,
+  trend,
+}) => {
   return (
-    <Grow in timeout={600 + delay}>
-      <Card
-        component={RouterLink}
-        to={linkTo}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        sx={{
-          height: '100%',
-          borderRadius: 3,
-          textDecoration: 'none',
-          position: 'relative',
-          overflow: 'hidden',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          cursor: 'pointer',
-          background: gradient,
-          color: 'white',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          '&:hover': {
-            transform: 'translateY(-8px)',
-            boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
-          },
-        }}
-      >
-        {/* Background Pattern */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '100%',
-            height: '100%',
-            opacity: 0.1,
-            background: 'radial-gradient(circle at top right, white 0%, transparent 70%)',
-          }}
-        />
-
-        <CardContent sx={{ position: 'relative', zIndex: 1, p: 3 }}>
-          {/* Header */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-            <Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  opacity: 0.9,
-                  fontWeight: 500,
-                  letterSpacing: 0.5,
-                  textTransform: 'uppercase',
-                  fontSize: '0.75rem',
-                }}
-              >
-                {title}
-              </Typography>
-              {subtitle && (
-                <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mt: 0.5 }}>
-                  {subtitle}
-                </Typography>
-              )}
-            </Box>
-
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                backdropFilter: 'blur(10px)',
-              }}
+    <Card
+      sx={{
+        height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 6,
+        },
+        transition: 'all 0.3s ease',
+      }}
+    >
+      <CardContent>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+          <Box flex={1}>
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ textTransform: 'uppercase', fontWeight: 600, fontSize: '0.75rem' }}
             >
-              {Icon && <Icon sx={{ fontSize: 28 }} />}
-            </Box>
-          </Box>
-
-          {/* Metric Value */}
-          <Box sx={{ mb: 2 }}>
-            {loading ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <CircularProgress size={32} sx={{ color: 'white' }} />
-                <Typography variant="h4" fontWeight={700}>
-                  ...
+              {title}
+            </Typography>
+            <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
+              {value}
+            </Typography>
+            {subtitle && (
+              <Typography variant="body2" color="text.secondary">
+                {subtitle}
+              </Typography>
+            )}
+            {trend && (
+              <Box display="flex" alignItems="center" mt={1}>
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  color={trend.isPositive ? 'success.main' : 'error.main'}
+                >
+                  {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+                </Typography>
+                <Typography variant="body2" color="text.secondary" ml={0.5}>
+                  vs. mês anterior
                 </Typography>
               </Box>
-            ) : error ? (
-              <Typography variant="h4" fontWeight={700}>
-                --
-              </Typography>
-            ) : (
-              <Fade in timeout={800}>
-                <Typography
-                  variant="h3"
-                  fontWeight={700}
-                  sx={{
-                    fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
-                    lineHeight: 1,
-                  }}
-                >
-                  {total.toLocaleString('pt-BR')}
-                </Typography>
-              </Fade>
             )}
           </Box>
-
-          {/* Footer Actions */}
-          <Box
+          <Avatar
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              pt: 2,
-              borderTop: '1px solid rgba(255,255,255,0.2)',
+              bgcolor: `${color}20`,
+              color: color,
+              width: 56,
+              height: 56,
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.9 }}>
-              <TrendingUpIcon sx={{ fontSize: 16 }} />
-              <Typography variant="caption" fontWeight={500}>
-                Total cadastrado
-              </Typography>
-            </Box>
+            <Icon fontSize="large" />
+          </Avatar>
+        </Box>
+      </CardContent>
 
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  loadTotal();
-                }}
-                sx={{
-                  color: 'white',
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.3)',
-                  },
-                }}
-              >
-                <RefreshIcon sx={{ fontSize: 18 }} />
-              </IconButton>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 28,
-                  height: 28,
-                  borderRadius: 1,
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  transition: 'all 0.3s ease',
-                  transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
-                }}
-              >
-                <ArrowForwardIcon sx={{ fontSize: 18 }} />
-              </Box>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </Grow>
+      {/* Decoração de fundo */}
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          width: '100px',
+          height: '100px',
+          borderRadius: '50%',
+          bgcolor: `${color}10`,
+          transform: 'translate(30%, 30%)',
+        }}
+      />
+    </Card>
   );
-};
-
-MetricCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  subtitle: PropTypes.string,
-  fetchTotal: PropTypes.func.isRequired,
-  linkTo: PropTypes.string.isRequired,
-  icon: PropTypes.elementType,
-  gradient: PropTypes.string.isRequired,
-  delay: PropTypes.number,
 };
 
 export default MetricCard;
