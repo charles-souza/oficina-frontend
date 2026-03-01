@@ -19,7 +19,7 @@ interface AddressData {
   estado: string;
 }
 
-const cepService = {
+export const cepService = {
   async getAddressByCep(cep: string, signal: AbortSignal | null = null): Promise<AddressData> {
     if (!cep) throw new Error('CEP é obrigatório');
     const cleaned = String(cep).replace(/\D/g, '');
