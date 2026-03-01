@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { 
-  Box, CssBaseline, AppBar, Toolbar, Typography, 
-  Drawer, List, ListItem, ListItemIcon, ListItemText, 
-  IconButton, Divider, useMediaQuery, useTheme 
+import {
+  Box, CssBaseline, AppBar, Toolbar, Typography,
+  Drawer, List, ListItem, ListItemIcon, ListItemText,
+  IconButton, Divider, useMediaQuery, useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -15,6 +15,7 @@ import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { DRAWER_WIDTH, ROUTES } from '../../constants';
+import ThemeToggle from './ThemeToggle';
 
 const drawerWidth = DRAWER_WIDTH;
 
@@ -94,9 +95,10 @@ const Layout = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Oficina SaaS
           </Typography>
+          <ThemeToggle />
         </Toolbar>
       </AppBar>
       <Box
