@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, MenuItem } from '@mui/material';
+import { Box, MenuItem } from '@mui/material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import BuildIcon from '@mui/icons-material/Build';
@@ -9,7 +9,6 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CategoryIcon from '@mui/icons-material/Category';
 import DescriptionIcon from '@mui/icons-material/Description';
 
-import FormContainer from '../common/FormContainer';
 import FormField from '../common/FormField';
 import FormSection from '../common/FormSection';
 import FormActions from '../common/FormActions';
@@ -73,54 +72,41 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
   };
 
   return (
-    <FormContainer
-      title={isEditing ? 'Editar Serviço' : 'Novo Serviço'}
-      subtitle={
-        isEditing
-          ? 'Atualize as informações do serviço'
-          : 'Cadastre um novo serviço no catálogo'
-      }
-      maxWidth={700}
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ handleSubmit, isSubmitting }) => (
-          <form onSubmit={handleSubmit}>
-            <FormSection
-              title="Informações do Serviço"
-              subtitle="Nome, descrição, valor e tempo estimado"
-              divider={false}
-            >
-              <Grid container spacing={2.5}>
-                <Grid xs={12}>
-                  <FormField
-                    name="nome"
-                    label="Nome do Serviço"
-                    placeholder="Ex: Troca de óleo e filtro"
-                    required
-                    startIcon={<BuildIcon />}
-                    inputProps={{ maxLength: 100 }}
-                    helperText="Nome do serviço oferecido"
-                  />
-                </Grid>
+      {({ handleSubmit, isSubmitting }) => (
+        <form onSubmit={handleSubmit}>
+          <FormSection
+            title="Informações do Serviço"
+            subtitle="Nome, descrição, valor e tempo estimado"
+          >
+            <Box sx={{ display: 'flex', gap: 2.5, flexDirection: 'column' }}>
+              <FormField
+                name="nome"
+                label="Nome do Serviço"
+                placeholder="Ex: Troca de óleo e filtro"
+                required
+                startIcon={<BuildIcon />}
+                inputProps={{ maxLength: 100 }}
+                helperText="Nome do serviço oferecido"
+              />
 
-                <Grid xs={12}>
-                  <FormField
-                    name="descricao"
-                    label="Descrição"
-                    placeholder="Descrição detalhada do serviço"
-                    multiline
-                    rows={3}
-                    startIcon={<DescriptionIcon />}
-                    helperText="Descrição opcional do serviço"
-                  />
-                </Grid>
+              <FormField
+                name="descricao"
+                label="Descrição"
+                placeholder="Descrição detalhada do serviço"
+                multiline
+                rows={3}
+                startIcon={<DescriptionIcon />}
+                helperText="Descrição opcional do serviço"
+              />
 
-                <Grid xs={12} sm={6}>
+              <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="precoPadrao"
                     label="Preço Padrão (R$)"
@@ -131,9 +117,9 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
                     inputProps={{ min: 0.01, step: '0.01' }}
                     helperText="Valor padrão cobrado pelo serviço"
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} sm={6}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="tempoEstimado"
                     label="Tempo Estimado (minutos)"
@@ -143,9 +129,11 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
                     inputProps={{ min: 0 }}
                     helperText="Tempo médio para execução"
                   />
-                </Grid>
+                </Box>
+              </Box>
 
-                <Grid xs={12} sm={6}>
+              <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="categoria"
                     label="Categoria"
@@ -154,9 +142,9 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
                     inputProps={{ maxLength: 50 }}
                     helperText="Categoria do serviço"
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} sm={6}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="ativo"
                     label="Status"
@@ -166,19 +154,19 @@ const ServicoForm = ({ servico, onSave, onCancel }) => {
                     <MenuItem value={true}>Ativo</MenuItem>
                     <MenuItem value={false}>Inativo</MenuItem>
                   </FormField>
-                </Grid>
-              </Grid>
-            </FormSection>
+                </Box>
+              </Box>
+            </Box>
+          </FormSection>
 
-            <FormActions
-              onCancel={onCancel}
-              loading={isSubmitting}
-              submitLabel={isEditing ? 'Atualizar Serviço' : 'Cadastrar Serviço'}
-            />
-          </form>
-        )}
-      </Formik>
-    </FormContainer>
+          <FormActions
+            onCancel={onCancel}
+            loading={isSubmitting}
+            submitLabel={isEditing ? 'Atualizar Serviço' : 'Cadastrar Serviço'}
+          />
+        </form>
+      )}
+    </Formik>
   );
 };
 

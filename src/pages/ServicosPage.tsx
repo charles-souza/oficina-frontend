@@ -8,7 +8,6 @@ import {
   CardContent,
   Chip,
   IconButton,
-  Dialog,
   Tooltip,
   Typography,
   Stack,
@@ -27,13 +26,15 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { servicoService, ServicoFilters } from '../services/servicoService';
 import { Servico } from '../types';
 import { useNotification } from '../contexts/NotificationContext';
-import ServicoForm from '../components/servicos/ServicoForm';
+import ServicoFormModal from '../components/servicos/ServicoFormModal';
 import {
   PageContainer,
   PageHeader,
+  ActionBar,
   ContentCard,
   EmptyState,
   LoadingState,
+  ConfirmDialog,
 } from '../components/common';
 
 const ServicosPage: React.FC = () => {
@@ -44,6 +45,9 @@ const ServicosPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [selectedServico, setSelectedServico] = useState<Servico | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toDeleteId, setToDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [filters, setFilters] = useState<ServicoFilters>({
     ativo: undefined,
     categoria: '',
@@ -120,16 +124,25 @@ const ServicosPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Deseja realmente excluir este serviço?')) return;
+  const handleDeleteConfirm = (id: string) => {
+    setToDeleteId(id);
+    setConfirmOpen(true);
+  };
 
+  const handleDelete = async () => {
+    if (!toDeleteId) return;
+    setDeleting(true);
     try {
-      await servicoService.delete(id);
+      await servicoService.delete(toDeleteId);
       showSuccess('Serviço excluído com sucesso');
+      setConfirmOpen(false);
+      setToDeleteId(null);
       await loadServicos();
     } catch (error) {
       showError('Erro ao excluir serviço');
       console.error('Erro ao excluir:', error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -150,20 +163,30 @@ const ServicosPage: React.FC = () => {
 
   const hasActiveFilters = filters.search || filters.categoria || filters.ativo !== undefined;
 
+  const actions = [
+    {
+      label: 'Novo Serviço',
+      icon: <AddIcon />,
+      onClick: () => handleOpenForm(),
+    },
+    {
+      label: 'Atualizar',
+      icon: <RefreshIcon />,
+      onClick: () => loadServicos(),
+    },
+  ];
+
   return (
     <PageContainer>
       <PageHeader
         title="Catálogo de Serviços"
         subtitle="Gerencie os serviços oferecidos pela oficina"
-        action={{
-          label: 'Novo Serviço',
-          icon: <AddIcon />,
-          onClick: () => handleOpenForm(),
-        }}
       />
 
-      {/* Filtros */}
+      {/* Ações */}
       <ContentCard>
+        <ActionBar actions={actions} />
+
         <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'divider' }}>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
             <FilterIcon color="action" />
@@ -312,19 +335,25 @@ const ServicosPage: React.FC = () => {
                         <Tooltip title="Editar">
                           <IconButton
                             size="small"
-                            color="primary"
                             onClick={() => handleOpenForm(servico)}
+                            sx={{
+                              color: 'info.main',
+                              '&:hover': { bgcolor: 'info.50' },
+                            }}
                           >
-                            <EditIcon />
+                            <EditIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Excluir">
                           <IconButton
                             size="small"
-                            color="error"
-                            onClick={() => servico.id && handleDelete(servico.id)}
+                            onClick={() => servico.id && handleDeleteConfirm(servico.id)}
+                            sx={{
+                              color: 'error.main',
+                              '&:hover': { bgcolor: 'error.50' },
+                            }}
                           >
-                            <DeleteIcon />
+                            <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </Box>
@@ -337,14 +366,23 @@ const ServicosPage: React.FC = () => {
         </Box>
       </ContentCard>
 
-      {/* Dialog do Formulário */}
-      <Dialog open={showForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
-        <ServicoForm
-          servico={selectedServico || undefined}
-          onSave={handleSaveSuccess}
-          onCancel={handleCloseForm}
-        />
-      </Dialog>
+      {/* Modal do Formulário */}
+      <ServicoFormModal
+        open={showForm}
+        onClose={handleCloseForm}
+        servico={selectedServico}
+        onSave={handleSaveSuccess}
+      />
+
+      {/* Diálogo de Confirmação */}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Confirmar exclusão"
+        description="Deseja realmente excluir este serviço? Esta ação não pode ser desfeita."
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
     </PageContainer>
   );
 };
