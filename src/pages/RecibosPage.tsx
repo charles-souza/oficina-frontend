@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Dialog, DialogContent, Paper, Typography, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Paper, Typography, Chip, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Edit as EditIcon, Delete as DeleteIcon, Print as PrintIcon } from '@mui/icons-material';
-import ReciboForm from '../components/recibos/ReciboForm';
+import ReciboFormModal from '../components/recibos/ReciboFormModal';
 import { reciboService } from '../services/reciboService';
 import {
   PageContainer,
@@ -12,6 +12,7 @@ import {
   ContentCard,
   EmptyState,
   LoadingState,
+  ConfirmDialog,
 } from '../components/common';
 import { useNotification } from '../contexts/NotificationContext';
 import { ERROR_MESSAGES } from '../constants';
@@ -22,6 +23,9 @@ const RecibosPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRecibo, setSelectedRecibo] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toDeleteId, setToDeleteId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const fetchRecibos = useCallback(async () => {
@@ -59,17 +63,32 @@ const RecibosPage = () => {
     closeModal();
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Deseja realmente excluir este recibo?')) {
-      try {
-        await reciboService.delete(id);
-        showSuccess('Recibo excluído com sucesso!');
-        await fetchRecibos();
-      } catch (err) {
-        console.error('Erro ao excluir recibo', err);
-        showError('Erro ao excluir recibo');
-      }
+  const handleDeleteConfirm = (id) => {
+    setToDeleteId(id);
+    setConfirmOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!toDeleteId) return;
+    setDeleting(true);
+    try {
+      await reciboService.delete(toDeleteId);
+      showSuccess('Recibo excluído com sucesso!');
+      setConfirmOpen(false);
+      setToDeleteId(null);
+      await fetchRecibos();
+    } catch (err) {
+      console.error('Erro ao excluir recibo', err);
+      showError('Erro ao excluir recibo');
+    } finally {
+      setDeleting(false);
     }
+  };
+
+  const handlePrint = (recibo) => {
+    // Placeholder para funcionalidade de impressão
+    // Pode ser implementado com window.print() ou geração de PDF
+    showError('Funcionalidade de impressão em desenvolvimento');
   };
 
   const actions = [
@@ -142,39 +161,86 @@ const RecibosPage = () => {
                 >
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                     <Typography variant="h6" fontWeight={600}>
-                      #{recibo.numero || recibo.id}
+                      Recibo #{recibo.id?.substring(0, 8)}
                     </Typography>
-                    <Chip
-                      label={recibo.status || 'Emitido'}
-                      color="success"
-                      size="small"
-                    />
+                    <Chip label="Emitido" color="success" size="small" />
                   </Box>
 
                   <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Cliente: {recibo.clienteNome}
+                    <strong>Cliente:</strong> {recibo.clienteNome || 'Não informado'}
                   </Typography>
+
                   <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Data: {new Date(recibo.dataEmissao).toLocaleDateString()}
+                    <strong>Data:</strong>{' '}
+                    {recibo.dataEmissao
+                      ? new Date(recibo.dataEmissao).toLocaleDateString('pt-BR')
+                      : '-'}
                   </Typography>
+
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <strong>Forma de Pagamento:</strong>{' '}
+                    {recibo.formaPagamento?.replace(/_/g, ' ') || 'Não informada'}
+                  </Typography>
+
+                  {recibo.descricao && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                      sx={{
+                        mt: 1,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {recibo.descricao}
+                    </Typography>
+                  )}
+
                   <Typography variant="h5" color="primary" fontWeight={700} sx={{ mt: 2 }}>
-                    R$ {recibo.valor?.toFixed(2)}
+                    {new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }).format(recibo.valorPago || 0)}
                   </Typography>
 
                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
                     <Tooltip title="Imprimir">
-                      <IconButton size="small" color="primary">
-                        <PrintIcon />
+                      <IconButton
+                        size="small"
+                        onClick={() => handlePrint(recibo)}
+                        sx={{
+                          color: 'primary.main',
+                          '&:hover': { bgcolor: 'primary.50' },
+                        }}
+                      >
+                        <PrintIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Editar">
-                      <IconButton size="small" color="primary" onClick={() => openEditModal(recibo)}>
-                        <EditIcon />
+                      <IconButton
+                        size="small"
+                        onClick={() => openEditModal(recibo)}
+                        sx={{
+                          color: 'info.main',
+                          '&:hover': { bgcolor: 'info.50' },
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Excluir">
-                      <IconButton size="small" color="error" onClick={() => handleDelete(recibo.id)}>
-                        <DeleteIcon />
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteConfirm(recibo.id)}
+                        sx={{
+                          color: 'error.main',
+                          '&:hover': { bgcolor: 'error.50' },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   </Box>
@@ -185,11 +251,21 @@ const RecibosPage = () => {
         </Box>
       </ContentCard>
 
-      <Dialog open={modalOpen} onClose={closeModal} maxWidth="md" fullWidth>
-        <DialogContent>
-          <ReciboForm recibo={selectedRecibo} onSave={handleSave} onCancel={closeModal} />
-        </DialogContent>
-      </Dialog>
+      <ReciboFormModal
+        open={modalOpen}
+        onClose={closeModal}
+        recibo={selectedRecibo}
+        onSave={handleSave}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Confirmar exclusão"
+        description="Deseja realmente excluir este recibo? Esta ação não pode ser desfeita."
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
     </PageContainer>
   );
 };

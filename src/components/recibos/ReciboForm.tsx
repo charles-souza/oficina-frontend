@@ -1,30 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, MenuItem } from '@mui/material';
+import { Box, MenuItem } from '@mui/material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import PersonIcon from '@mui/icons-material/Person';
-import ReceiptIcon from '@mui/icons-material/Receipt';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import PaymentIcon from '@mui/icons-material/Payment';
 import DescriptionIcon from '@mui/icons-material/Description';
 import NotesIcon from '@mui/icons-material/Notes';
 
-import FormContainer from '../common/FormContainer';
 import FormField from '../common/FormField';
 import FormSection from '../common/FormSection';
 import FormActions from '../common/FormActions';
+import ClienteAutocomplete from '../common/ClienteAutocomplete';
 import { reciboService } from '../../services/reciboService';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const FORMAS_PAGAMENTO = [
-  'Dinheiro',
-  'Cartão de Crédito',
-  'Cartão de Débito',
-  'PIX',
-  'Transferência Bancária',
-  'Boleto',
+  { value: 'DINHEIRO', label: 'Dinheiro' },
+  { value: 'CARTAO_CREDITO', label: 'Cartão de Crédito' },
+  { value: 'CARTAO_DEBITO', label: 'Cartão de Débito' },
+  { value: 'PIX', label: 'PIX' },
+  { value: 'TRANSFERENCIA', label: 'Transferência Bancária' },
+  { value: 'CHEQUE', label: 'Cheque' },
+  { value: 'BOLETO', label: 'Boleto' },
 ];
 
 const validationSchema = Yup.object({
@@ -56,7 +55,7 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     const payload = {
       orcamentoId: values.orcamentoId || null,
-      clienteId: parseInt(values.clienteId, 10),
+      clienteId: values.clienteId,
       dataEmissao: values.dataEmissao,
       valorPago: parseFloat(values.valorPago),
       formaPagamento: values.formaPagamento,
@@ -82,59 +81,25 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
   };
 
   return (
-    <FormContainer
-      title={isEditing ? 'Editar Recibo' : 'Novo Recibo'}
-      subtitle={
-        isEditing
-          ? 'Atualize as informações do recibo'
-          : 'Gere um recibo de pagamento para o cliente'
-      }
-      maxWidth={900}
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ handleSubmit, isSubmitting }) => (
-          <form onSubmit={handleSubmit}>
-            <FormSection
-              title="Identificação"
-              subtitle="Cliente e orçamento relacionado"
-            >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} sm={6}>
-                  <FormField
-                    name="clienteId"
-                    label="ID do Cliente"
-                    type="number"
-                    placeholder="Informe o ID do cliente"
-                    required
-                    startIcon={<PersonIcon />}
-                    helperText="Cliente que realizou o pagamento"
-                  />
-                </Grid>
-
-                <Grid xs={12} sm={6}>
-                  <FormField
-                    name="orcamentoId"
-                    label="ID do Orçamento"
-                    type="number"
-                    placeholder="Opcional"
-                    startIcon={<ReceiptIcon />}
-                    helperText="Orçamento relacionado (se houver)"
-                  />
-                </Grid>
-              </Grid>
+      {({ handleSubmit, isSubmitting }) => (
+        <form onSubmit={handleSubmit}>
+            <FormSection title="Identificação" subtitle="Cliente que realizou o pagamento">
+              <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+                  <ClienteAutocomplete name="clienteId" label="Cliente" required />
+                </Box>
+              </Box>
             </FormSection>
 
-            <FormSection
-              title="Detalhes do Pagamento"
-              subtitle="Data, valor e forma de pagamento"
-            >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} sm={4}>
+            <FormSection title="Detalhes do Pagamento" subtitle="Data, valor e forma de pagamento">
+              <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="dataEmissao"
                     label="Data de Emissão"
@@ -143,9 +108,9 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                     startIcon={<CalendarTodayIcon />}
                     InputLabelProps={{ shrink: true }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} sm={4}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="valorPago"
                     label="Valor Pago (R$)"
@@ -156,9 +121,9 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                     inputProps={{ min: 0, step: '0.01' }}
                     helperText="Valor total pago pelo cliente"
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} sm={4}>
+                <Box sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <FormField
                     name="formaPagamento"
                     label="Forma de Pagamento"
@@ -168,13 +133,13 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
                     helperText="Método utilizado para pagamento"
                   >
                     {FORMAS_PAGAMENTO.map((forma) => (
-                      <MenuItem key={forma} value={forma}>
-                        {forma}
+                      <MenuItem key={forma.value} value={forma.value}>
+                        {forma.label}
                       </MenuItem>
                     ))}
                   </FormField>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormSection
@@ -182,42 +147,37 @@ const ReciboForm = ({ recibo, onSave, onCancel }) => {
               subtitle="Descrição e observações do recibo"
               divider={false}
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12}>
-                  <FormField
-                    name="descricao"
-                    label="Descrição"
-                    placeholder="Breve descrição do que foi pago"
-                    multiline
-                    rows={2}
-                    startIcon={<DescriptionIcon />}
-                    inputProps={{ maxLength: 500 }}
-                  />
-                </Grid>
+              <Box sx={{ display: 'flex', gap: 2.5, flexDirection: 'column' }}>
+                <FormField
+                  name="descricao"
+                  label="Descrição"
+                  placeholder="Breve descrição do que foi pago"
+                  multiline
+                  rows={2}
+                  startIcon={<DescriptionIcon />}
+                  inputProps={{ maxLength: 500 }}
+                />
 
-                <Grid xs={12}>
-                  <FormField
-                    name="observacoes"
-                    label="Observações"
-                    placeholder="Observações adicionais sobre o pagamento"
-                    multiline
-                    rows={3}
-                    startIcon={<NotesIcon />}
-                    inputProps={{ maxLength: 1000 }}
-                  />
-                </Grid>
-              </Grid>
+                <FormField
+                  name="observacoes"
+                  label="Observações"
+                  placeholder="Observações adicionais sobre o pagamento"
+                  multiline
+                  rows={3}
+                  startIcon={<NotesIcon />}
+                  inputProps={{ maxLength: 1000 }}
+                />
+              </Box>
             </FormSection>
 
-            <FormActions
-              onCancel={onCancel}
-              loading={isSubmitting}
-              submitLabel={isEditing ? 'Atualizar Recibo' : 'Gerar Recibo'}
-            />
-          </form>
-        )}
-      </Formik>
-    </FormContainer>
+          <FormActions
+            onCancel={onCancel}
+            loading={isSubmitting}
+            submitLabel={isEditing ? 'Atualizar Recibo' : 'Gerar Recibo'}
+          />
+        </form>
+      )}
+    </Formik>
   );
 };
 

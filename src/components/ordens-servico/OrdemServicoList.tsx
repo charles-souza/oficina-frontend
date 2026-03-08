@@ -29,6 +29,7 @@ import {
   CheckCircle as CheckCircleIcon,
   LocalShipping as LocalShippingIcon,
   Cancel as CancelIcon,
+  AttachMoney as AttachMoneyIcon,
 } from '@mui/icons-material';
 import { OrdemServico, OrdemServicoStatus } from '../../types/api';
 
@@ -37,6 +38,7 @@ interface OrdemServicoListProps {
   onEdit: (ordem: OrdemServico) => void;
   onDelete: (id: number | string) => void;
   onStatusChange?: (id: number | string, status: OrdemServicoStatus) => void;
+  onReceberPagamento?: (ordem: OrdemServico) => void;
   page: number;
   rowsPerPage: number;
   totalCount: number;
@@ -86,6 +88,7 @@ const OrdemServicoList: React.FC<OrdemServicoListProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
+  onReceberPagamento,
   page = 0,
   rowsPerPage = 10,
   totalCount = 0,
@@ -224,6 +227,21 @@ const OrdemServicoList: React.FC<OrdemServicoListProps> = ({
 
                     <TableCell align="right">
                       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                        {ordem.status === OrdemServicoStatus.PRONTA && onReceberPagamento && (
+                          <Tooltip title="Receber Pagamento">
+                            <IconButton
+                              size="small"
+                              onClick={() => onReceberPagamento(ordem)}
+                              sx={{
+                                color: 'success.main',
+                                '&:hover': { bgcolor: 'success.50' },
+                              }}
+                            >
+                              <AttachMoneyIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
                         <Tooltip title="Visualizar">
                           <IconButton
                             size="small"

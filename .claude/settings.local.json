@@ -29,7 +29,11 @@
       "Bash(npm ls:*)",
       "Bash(npm cache:*)",
       "Bash(npm uninstall:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(find:*)",
+      "Bash(jps:*)",
+      "Bash(xargs kill -9 sleep 2 echo \"Processo encerrado. Vou iniciar novamente...\")",
+      "Bash(echo Aguardando backend inicializar...:*)"
     ]
   }
 }

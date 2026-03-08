@@ -49,6 +49,29 @@ export const reciboService = {
     );
   },
 
+  /**
+   * Criar recibo a partir de Ordem de Serviço pronta
+   */
+  createFromOrdemServico: async (
+    ordemServicoId: string | number,
+    formaPagamento: string,
+    observacoes?: string
+  ): Promise<Recibo> => {
+    return withErrorHandling(
+      async () => {
+        const response = await api.post<Recibo>(
+          `/recibos/from-ordem-servico/${ordemServicoId}`,
+          {
+            formaPagamento,
+            observacoes
+          }
+        );
+        return response.data;
+      },
+      'Erro ao gerar recibo. Verifique se a ordem está com status PRONTA.'
+    );
+  },
+
   update: async (id: number, recibo: Partial<Recibo>): Promise<Recibo> => {
     return withErrorHandling(
       async () => {

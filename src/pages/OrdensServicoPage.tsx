@@ -1,7 +1,19 @@
 import React, { useState, useCallback } from 'react';
-import { Box } from '@mui/material';
+import {
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Typography,
+  Alert,
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import OrdemServicoList from '../components/ordens-servico/OrdemServicoList';
 import OrdemServicoFormModal from '../components/ordens-servico/OrdemServicoFormModal';
 import {
@@ -15,6 +27,7 @@ import {
 } from '../components/common';
 import { useNotification } from '../contexts/NotificationContext';
 import { ordemServicoService } from '../services/ordemServicoService';
+import { reciboService } from '../services/reciboService';
 import { clienteService } from '../services/clienteService';
 import { veiculoService } from '../services/veiculoService';
 import { OrdemServico, OrdemServicoRequest, OrdemServicoStatus } from '../types/api';
@@ -33,6 +46,13 @@ const OrdensServicoPage: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [total, setTotal] = useState(0);
   const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Estado para pagamento
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [ordemParaPagamento, setOrdemParaPagamento] = useState<OrdemServico | null>(null);
+  const [formaPagamento, setFormaPagamento] = useState('DINHEIRO');
+  const [observacoesPagamento, setObservacoesPagamento] = useState('');
+  const [receivingPayment, setReceivingPayment] = useState(false);
 
   // Cache para evitar buscar o mesmo cliente/veículo múltiplas vezes
   const clienteCache = React.useRef<Map<string, { nome: string; notFound?: boolean }>>(new Map());
@@ -218,6 +238,36 @@ const OrdensServicoPage: React.FC = () => {
     }
   };
 
+  const handleReceberPagamentoClick = (ordem: OrdemServico) => {
+    setOrdemParaPagamento(ordem);
+    setFormaPagamento('DINHEIRO');
+    setObservacoesPagamento('');
+    setPaymentModalOpen(true);
+  };
+
+  const handleReceberPagamento = async () => {
+    if (!ordemParaPagamento?.id) return;
+
+    setReceivingPayment(true);
+    try {
+      await reciboService.createFromOrdemServico(
+        ordemParaPagamento.id,
+        formaPagamento,
+        observacoesPagamento || undefined
+      );
+      showSuccess('Pagamento recebido com sucesso! Recibo gerado e ordem entregue.');
+      setPaymentModalOpen(false);
+      setOrdemParaPagamento(null);
+      await fetchOrdens(page, rowsPerPage);
+    } catch (err: any) {
+      console.error('Erro ao receber pagamento:', err);
+      const errorMessage = err?.response?.data?.error || 'Erro ao processar pagamento';
+      showError(errorMessage);
+    } finally {
+      setReceivingPayment(false);
+    }
+  };
+
   const actions = [
     {
       label: 'Nova Ordem',
@@ -264,6 +314,7 @@ const OrdensServicoPage: React.FC = () => {
               onEdit={openEditModal}
               onDelete={handleDeleteConfirm}
               onStatusChange={handleStatusChange}
+              onReceberPagamento={handleReceberPagamentoClick}
               page={page}
               rowsPerPage={rowsPerPage}
               totalCount={total}
@@ -297,6 +348,109 @@ const OrdensServicoPage: React.FC = () => {
         onConfirm={handleDelete}
         loading={deleting}
       />
+
+      {/* Modal de Recebimento de Pagamento */}
+      <Dialog
+        open={paymentModalOpen}
+        onClose={() => !receivingPayment && setPaymentModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            py: 2.5,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+          }}
+        >
+          <AttachMoneyIcon />
+          <Box>
+            <Typography variant="h6" fontWeight={600}>
+              Receber Pagamento
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.9 }}>
+              OS #{ordemParaPagamento?.id} - {ordemParaPagamento?.clienteNome}
+            </Typography>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Alert severity="info" sx={{ mb: 3 }}>
+            Um recibo será gerado automaticamente e a ordem será marcada como <strong>ENTREGUE</strong>.
+          </Alert>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box>
+              <Typography variant="body2" fontWeight={500} gutterBottom>
+                Valor a Receber
+              </Typography>
+              <Typography variant="h5" color="primary.main" fontWeight={700}>
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(ordemParaPagamento?.valorTotal || 0)}
+              </Typography>
+            </Box>
+
+            <TextField
+              select
+              label="Forma de Pagamento"
+              value={formaPagamento}
+              onChange={(e) => setFormaPagamento(e.target.value)}
+              fullWidth
+              required
+              disabled={receivingPayment}
+            >
+              <MenuItem value="DINHEIRO">Dinheiro</MenuItem>
+              <MenuItem value="CARTAO_DEBITO">Cartão de Débito</MenuItem>
+              <MenuItem value="CARTAO_CREDITO">Cartão de Crédito</MenuItem>
+              <MenuItem value="PIX">PIX</MenuItem>
+              <MenuItem value="TRANSFERENCIA">Transferência Bancária</MenuItem>
+              <MenuItem value="CHEQUE">Cheque</MenuItem>
+            </TextField>
+
+            <TextField
+              label="Observações"
+              value={observacoesPagamento}
+              onChange={(e) => setObservacoesPagamento(e.target.value)}
+              fullWidth
+              multiline
+              rows={3}
+              placeholder="Adicione observações sobre o pagamento (opcional)"
+              disabled={receivingPayment}
+            />
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+          <Button
+            onClick={() => setPaymentModalOpen(false)}
+            disabled={receivingPayment}
+            sx={{ minWidth: 100 }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleReceberPagamento}
+            variant="contained"
+            color="success"
+            disabled={receivingPayment}
+            startIcon={receivingPayment ? null : <AttachMoneyIcon />}
+            sx={{ minWidth: 140 }}
+          >
+            {receivingPayment ? 'Processando...' : 'Confirmar Pagamento'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </PageContainer>
   );
 };

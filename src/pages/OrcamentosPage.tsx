@@ -5,6 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import OrcamentosList from '../components/orcamentos/OrcamentosList';
 import OrcamentoFormModal from '../components/orcamentos/OrcamentoFormModal';
 import { orcamentoService } from '../services/orcamentoService';
+import { ordemServicoService } from '../services/ordemServicoService';
 import { clienteService } from '../services/clienteService';
 import { veiculoService } from '../services/veiculoService';
 import {
@@ -27,7 +28,10 @@ const OrcamentosPage = () => {
   const [selectedOrcamento, setSelectedOrcamento] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmGerarOSOpen, setConfirmGerarOSOpen] = useState(false);
   const [toDeleteId, setToDeleteId] = useState(null);
+  const [orcamentoParaOS, setOrcamentoParaOS] = useState(null);
+  const [generatingOS, setGeneratingOS] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -219,6 +223,39 @@ const OrcamentosPage = () => {
     }
   };
 
+  const handleGerarOSConfirm = (orcamento) => {
+    setOrcamentoParaOS(orcamento);
+    setConfirmGerarOSOpen(true);
+  };
+
+  const handleGerarOS = async () => {
+    if (!orcamentoParaOS) return;
+    setGeneratingOS(true);
+    try {
+      await ordemServicoService.createFromOrcamento(orcamentoParaOS.id);
+      showSuccess('Ordem de Serviço gerada com sucesso!');
+      setConfirmGerarOSOpen(false);
+      setOrcamentoParaOS(null);
+      await fetchAll();
+    } catch (err) {
+      console.error('Erro ao gerar ordem de serviço', err);
+      showError('Erro ao gerar ordem de serviço. Verifique se o orçamento está aprovado.');
+    } finally {
+      setGeneratingOS(false);
+    }
+  };
+
+  const handleStatusChange = async (id, status) => {
+    try {
+      await orcamentoService.updateStatus(id, status);
+      showSuccess(`Status alterado para ${status.replace(/_/g, ' ')}`);
+      await fetchAll();
+    } catch (err) {
+      console.error('Erro ao alterar status', err);
+      showError('Erro ao alterar status do orçamento');
+    }
+  };
+
   const actions = [
     {
       label: 'Novo Orçamento',
@@ -264,6 +301,8 @@ const OrcamentosPage = () => {
               orcamentos={orcamentos}
               onDelete={handleDeleteConfirm}
               onEdit={openEditModal}
+              onGerarOS={handleGerarOSConfirm}
+              onStatusChange={handleStatusChange}
               page={page}
               rowsPerPage={rowsPerPage}
               totalCount={total}
@@ -286,6 +325,22 @@ const OrcamentosPage = () => {
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleDelete}
         loading={deleting}
+      />
+
+      <ConfirmDialog
+        open={confirmGerarOSOpen}
+        title="Gerar Ordem de Serviço"
+        description={`Deseja gerar uma Ordem de Serviço a partir do orçamento do cliente ${orcamentoParaOS?.clienteNome || ''}?`}
+        onCancel={() => {
+          setConfirmGerarOSOpen(false);
+          setOrcamentoParaOS(null);
+        }}
+        onConfirm={handleGerarOS}
+        loading={generatingOS}
+        confirmText="Gerar OS"
+        cancelText="Cancelar"
+        confirmColor="success"
+        loadingText="Gerando OS..."
       />
     </PageContainer>
   );

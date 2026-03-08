@@ -48,7 +48,9 @@ export const clienteService = {
     return withErrorHandling(
       async () => {
         const cleanedCliente = removeUndefinedFields(cliente);
+        console.log('clienteService.create - Payload limpo:', cleanedCliente);
         const response = await api.post<Cliente>('/clientes', cleanedCliente);
+        console.log('clienteService.create - Resposta do backend:', response.data);
         return response.data;
       },
       ERROR_MESSAGES.SAVE_CLIENT

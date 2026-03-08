@@ -57,13 +57,16 @@ export interface Orcamento {
 
 export interface Recibo {
   id?: string;
+  orcamentoId?: string;
+  ordemServicoId?: string;
   clienteId: string;
-  veiculoId: string;
+  veiculoId?: string;
   dataEmissao: string;
-  valorTotal: number;
+  valorPago: number;
   formaPagamento: string;
-  descricao: string;
+  descricao?: string;
   observacoes?: string;
+  // Campos de exibição
   clienteNome?: string;
   veiculoPlaca?: string;
 }
