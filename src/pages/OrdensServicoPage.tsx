@@ -268,6 +268,28 @@ const OrdensServicoPage: React.FC = () => {
     }
   };
 
+  const handlePrint = async (ordem: OrdemServico) => {
+    if (!ordem.id) return;
+
+    try {
+      const pdfBlob = await ordemServicoService.gerarPdf(ordem.id);
+
+      // Criar URL temporária para o blob
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+
+      // Abrir em nova aba
+      window.open(pdfUrl, '_blank');
+
+      // Limpar URL após um tempo
+      setTimeout(() => {
+        window.URL.revokeObjectURL(pdfUrl);
+      }, 100);
+    } catch (err) {
+      console.error('Erro ao gerar PDF:', err);
+      showError('Erro ao gerar PDF da ordem de serviço');
+    }
+  };
+
   const actions = [
     {
       label: 'Nova Ordem',
@@ -315,6 +337,7 @@ const OrdensServicoPage: React.FC = () => {
               onDelete={handleDeleteConfirm}
               onStatusChange={handleStatusChange}
               onReceberPagamento={handleReceberPagamentoClick}
+              onPrint={handlePrint}
               page={page}
               rowsPerPage={rowsPerPage}
               totalCount={total}

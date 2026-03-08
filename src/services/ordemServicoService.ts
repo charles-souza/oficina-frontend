@@ -129,4 +129,14 @@ export const ordemServicoService = {
     const response = await api.get<OrdemServico[]>(`${BASE_URL}/abertas-hoje`);
     return response.data;
   },
+
+  /**
+   * Gerar PDF da ordem de serviço
+   */
+  gerarPdf: async (id: string | number): Promise<Blob> => {
+    const response = await api.get(`${BASE_URL}/${id}/pdf`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };

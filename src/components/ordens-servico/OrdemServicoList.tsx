@@ -22,6 +22,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Visibility as VisibilityIcon,
+  Print as PrintIcon,
   MoreVert as MoreVertIcon,
   Schedule as ScheduleIcon,
   Build as BuildIcon,
@@ -39,6 +40,7 @@ interface OrdemServicoListProps {
   onDelete: (id: number | string) => void;
   onStatusChange?: (id: number | string, status: OrdemServicoStatus) => void;
   onReceberPagamento?: (ordem: OrdemServico) => void;
+  onPrint?: (ordem: OrdemServico) => void;
   page: number;
   rowsPerPage: number;
   totalCount: number;
@@ -89,6 +91,7 @@ const OrdemServicoList: React.FC<OrdemServicoListProps> = ({
   onDelete,
   onStatusChange,
   onReceberPagamento,
+  onPrint,
   page = 0,
   rowsPerPage = 10,
   totalCount = 0,
@@ -238,6 +241,21 @@ const OrdemServicoList: React.FC<OrdemServicoListProps> = ({
                               }}
                             >
                               <AttachMoneyIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+
+                        {onPrint && (
+                          <Tooltip title="Imprimir">
+                            <IconButton
+                              size="small"
+                              onClick={() => onPrint(ordem)}
+                              sx={{
+                                color: 'primary.main',
+                                '&:hover': { bgcolor: 'primary.50' },
+                              }}
+                            >
+                              <PrintIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                         )}
