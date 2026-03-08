@@ -9,6 +9,7 @@ const routeTitles: Record<string, string> = {
   [ROUTES.VEHICLES]: 'Veículos',
   [ROUTES.QUOTES]: 'Orçamentos',
   [ROUTES.RECEIPTS]: 'Recibos',
+  [ROUTES.FINANCIAL_REPORT]: 'Relatório de Faturamento',
   [ROUTES.SERVICES]: 'Serviços',
   [ROUTES.SERVICE_ORDERS]: 'Ordens de Serviço',
   [ROUTES.HISTORY]: 'Histórico',
