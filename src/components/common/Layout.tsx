@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import {
   Box, CssBaseline, AppBar, Toolbar, Typography,
   Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText,
-  IconButton, Divider, useMediaQuery, useTheme, Container
+  IconButton, Divider, useMediaQuery, useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -17,7 +17,6 @@ import HistoryIcon from '@mui/icons-material/History';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { DRAWER_WIDTH, ROUTES } from '../../constants';
 import ThemeToggle from './ThemeToggle';
-import Breadcrumbs from './Breadcrumbs';
 import UserProfile from './UserProfile';
 import { getPageTitle } from '../../hooks/usePageTitle';
 
@@ -98,7 +97,7 @@ const Layout = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -132,7 +131,7 @@ const Layout = () => {
           open={isMobile ? mobileOpen : true}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better mobile performance
+            keepMounted: true,
           }}
           sx={{
             display: { xs: 'block' },
@@ -146,17 +145,13 @@ const Layout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          py: 3,
-          px: 0,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          maxWidth: { md: `calc(100% - ${drawerWidth}px)` },
-          marginTop: '64px'
+          width: '100%',
+          minHeight: '100vh',
+          marginTop: '64px',
+          overflow: 'auto',
         }}
       >
-        <Container maxWidth="xl">
-          <Breadcrumbs />
-          <Outlet />
-        </Container>
+        <Outlet />
       </Box>
     </Box>
   );

@@ -26,18 +26,22 @@ const MetricCard: React.FC<MetricCardProps> = ({
     <Card
       sx={{
         height: '100%',
+        minHeight: 160,
         position: 'relative',
         overflow: 'hidden',
+        borderRadius: 3,
         '&:hover': {
           transform: 'translateY(-4px)',
           boxShadow: 6,
         },
         transition: 'all 0.3s ease',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <CardContent>
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-          <Box flex={1}>
+      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" flex={1}>
+          <Box flex={1} display="flex" flexDirection="column">
             <Typography
               variant="subtitle2"
               color="text.secondary"
@@ -75,6 +79,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
               color: color,
               width: 56,
               height: 56,
+              flexShrink: 0,
             }}
           >
             <Icon fontSize="large" />

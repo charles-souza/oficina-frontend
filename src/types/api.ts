@@ -1,54 +1,64 @@
 export interface Cliente {
-  id?: number;
+  id?: string;
   nome: string;
   cpfCnpj: string;
   telefone: string;
   email: string;
-  cep: string;
   endereco: string;
-  numero: string;
-  complemento?: string;
   bairro: string;
   cidade: string;
   estado: string;
+  cep: string;
+  observacoes?: string;
 }
 
 export interface Veiculo {
-  id?: number;
-  clienteId: number;
+  id?: string;
+  clienteId: string;
   placa: string;
   marca: string;
   modelo: string;
   ano: number;
-  cor: string;
+  cor?: string;
+  chassi?: string;
+  renavam?: string;
+  observacoes?: string;
+  // Campos de exibição
   clienteNome?: string;
 }
 
 export interface OrcamentoItem {
-  id?: number;
+  id?: string;
+  tipo?: string;
   descricao: string;
   quantidade: number;
   valorUnitario: number;
-  valorTotal: number;
+  valorTotal?: number;
 }
 
 export interface Orcamento {
-  id?: number;
-  clienteId: number;
-  veiculoId: number;
-  dataOrcamento: string;
-  status: 'PENDENTE' | 'APROVADO' | 'REJEITADO';
+  id?: string;
+  clienteId: string;
+  veiculoId: string;
+  dataOrcamento?: string; // Compatibilidade com backend antigo
+  dataEmissao?: string;
+  dataValidade?: string;
+  descricaoProblema?: string;
+  status: 'PENDENTE' | 'APROVADO' | 'REJEITADO' | 'CANCELADO';
   observacoes?: string;
-  valorTotal: number;
+  desconto?: number;
+  valorTotal?: number;
   itens: OrcamentoItem[];
+  // Campos de exibição retornados pelo backend
   clienteNome?: string;
   veiculoPlaca?: string;
+  veiculoModelo?: string;
 }
 
 export interface Recibo {
-  id?: number;
-  clienteId: number;
-  veiculoId: number;
+  id?: string;
+  clienteId: string;
+  veiculoId: string;
   dataEmissao: string;
   valorTotal: number;
   formaPagamento: string;
@@ -59,11 +69,13 @@ export interface Recibo {
 }
 
 export interface Servico {
-  id?: number;
+  id?: string;
   nome: string;
   descricao?: string;
-  preco: number;
+  precoPadrao: number;
   tempoEstimado?: number;
+  categoria?: string;
+  ativo?: boolean;
 }
 
 // Tipos para Ordem de Serviço
@@ -82,7 +94,7 @@ export enum ItemTipo {
 }
 
 export interface ItemOrdemServico {
-  id?: number;
+  id?: string;
   tipo: ItemTipo;
   descricao: string;
   quantidade: number;
@@ -91,10 +103,10 @@ export interface ItemOrdemServico {
 }
 
 export interface OrdemServico {
-  id?: number;
-  clienteId: number;
-  veiculoId: number;
-  orcamentoId?: number;
+  id?: string;
+  clienteId: string;
+  veiculoId: string;
+  orcamentoId?: string;
   dataAbertura: string;
   dataConclusao?: string;
   dataEntrega?: string;
@@ -111,9 +123,9 @@ export interface OrdemServico {
 }
 
 export interface OrdemServicoRequest {
-  clienteId: number;
-  veiculoId: number;
-  orcamentoId?: number;
+  clienteId: string;
+  veiculoId: string;
+  orcamentoId?: string;
   dataAbertura: string;
   dataConclusao?: string;
   dataEntrega?: string;
@@ -135,9 +147,9 @@ export enum TipoEvento {
 }
 
 export interface HistoricoServico {
-  id?: number;
-  veiculoId: number;
-  ordemServicoId?: number;
+  id?: string;
+  veiculoId: string;
+  ordemServicoId?: string;
   tipoEvento: TipoEvento;
   statusAnterior?: OrdemServicoStatus;
   statusNovo?: OrdemServicoStatus;

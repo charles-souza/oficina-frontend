@@ -12,14 +12,18 @@ const ChartCard: React.FC<ChartCardProps> = ({ title, subtitle, children }) => {
     <Card
       sx={{
         height: '100%',
+        minHeight: 400,
+        borderRadius: 3,
+        display: 'flex',
+        flexDirection: 'column',
         '&:hover': {
           boxShadow: 4,
         },
         transition: 'box-shadow 0.3s ease',
       }}
     >
-      <CardContent>
-        <Box mb={3}>
+      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box mb={2}>
           <Typography variant="h6" fontWeight={700} gutterBottom>
             {title}
           </Typography>
@@ -29,7 +33,9 @@ const ChartCard: React.FC<ChartCardProps> = ({ title, subtitle, children }) => {
             </Typography>
           )}
         </Box>
-        <Box>{children}</Box>
+        <Box flex={1} display="flex" alignItems="center" justifyContent="center">
+          {children}
+        </Box>
       </CardContent>
     </Card>
   );

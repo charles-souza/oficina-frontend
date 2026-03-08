@@ -86,14 +86,22 @@ export const clienteSchema = Yup.object({
 // ============================================================================
 
 export const veiculoSchema = Yup.object({
-  placa: commonFields.requiredString,
-  marca: commonFields.optionalString,
-  modelo: commonFields.optionalString,
-  ano: Yup.string().matches(/^\d{0,4}$/, 'Ano inválido'),
+  placa: Yup.string()
+    .required(VALIDATION_MESSAGES.required)
+    .matches(/^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/i, 'Placa inválida (formato: ABC-1234 ou ABC1D23)'),
+  marca: commonFields.requiredString,
+  modelo: commonFields.requiredString,
+  ano: Yup.number()
+    .required(VALIDATION_MESSAGES.required)
+    .min(1900, VALIDATION_MESSAGES.min(1900))
+    .max(2100, VALIDATION_MESSAGES.max(2100))
+    .integer(VALIDATION_MESSAGES.integer),
   cor: commonFields.optionalString,
-  chassi: commonFields.optionalString,
-  renavam: commonFields.optionalString,
-  clienteId: commonFields.optionalString,
+  chassi: Yup.string()
+    .matches(/^[A-HJ-NPR-Z0-9]{17}$|^$/, 'Chassi inválido (deve ter 17 caracteres)'),
+  renavam: Yup.string()
+    .matches(/^\d{11}$|^$/, 'RENAVAM deve ter 11 dígitos'),
+  clienteId: commonFields.requiredString,
   observacoes: Yup.string().max(1000, VALIDATION_MESSAGES.maxLength(1000)),
 });
 
@@ -176,11 +184,16 @@ export const reciboSchema = Yup.object({
 // ============================================================================
 
 export const servicoSchema = Yup.object({
-  descricao: commonFields.requiredString,
-  preco: commonFields.positiveNumber,
-  tempoEstimadoMinutos: Yup.number()
+  nome: commonFields.requiredString
+    .min(3, VALIDATION_MESSAGES.minLength(3))
+    .max(100, VALIDATION_MESSAGES.maxLength(100)),
+  descricao: commonFields.optionalString,
+  precoPadrao: commonFields.positiveNumber,
+  tempoEstimado: Yup.number()
     .positive(VALIDATION_MESSAGES.positive)
     .integer(VALIDATION_MESSAGES.integer),
+  categoria: Yup.string().max(50, VALIDATION_MESSAGES.maxLength(50)),
+  ativo: Yup.boolean(),
 });
 
 // ============================================================================

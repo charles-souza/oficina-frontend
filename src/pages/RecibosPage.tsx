@@ -1,9 +1,18 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Typography, Button, Paper, Fade, Dialog, DialogContent, Chip } from '@mui/material';
+import { Box, Dialog, DialogContent, Paper, Typography, Chip, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Edit as EditIcon, Delete as DeleteIcon, Print as PrintIcon } from '@mui/icons-material';
 import ReciboForm from '../components/recibos/ReciboForm';
 import { reciboService } from '../services/reciboService';
+import {
+  PageContainer,
+  PageHeader,
+  ActionBar,
+  ContentCard,
+  EmptyState,
+  LoadingState,
+} from '../components/common';
 import { useNotification } from '../contexts/NotificationContext';
 import { ERROR_MESSAGES } from '../constants';
 
@@ -63,222 +72,125 @@ const RecibosPage = () => {
     }
   };
 
-  return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Fade in timeout={400}>
-        <Box>
-          {/* Header com gradiente */}
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 3,
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-            }}
-          >
-            <Typography variant="h4" component="h1" fontWeight={600}>
-              Gerenciamento de Recibos
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
-              Gere e gerencie recibos de pagamento
-            </Typography>
-          </Paper>
+  const actions = [
+    {
+      label: 'Novo Recibo',
+      icon: <AddIcon />,
+      onClick: openNewModal,
+    },
+    {
+      label: 'Carregar Recibos',
+      icon: <RefreshIcon />,
+      onClick: fetchRecibos,
+    },
+  ];
 
-          {/* Card principal */}
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 3,
-              overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-            }}
-          >
-            {/* Barra de ações */}
+  return (
+    <PageContainer>
+      <PageHeader
+        title="Gerenciamento de Recibos"
+        subtitle="Gere e gerencie recibos de pagamento"
+      />
+
+      <ContentCard>
+        <ActionBar actions={actions} />
+
+        <Box sx={{ p: 3 }}>
+          {loading ? (
+            <LoadingState message="Carregando recibos..." />
+          ) : !recibos || recibos.length === 0 ? (
+            <EmptyState
+              title={hasLoaded ? 'Nenhum recibo encontrado' : 'Nenhum recibo carregado'}
+              description={
+                hasLoaded
+                  ? 'Gere um novo recibo para começar'
+                  : 'Clique em "Carregar Recibos" para ver a lista'
+              }
+              action={{
+                label: 'Novo Recibo',
+                icon: <AddIcon />,
+                onClick: openNewModal,
+              }}
+            />
+          ) : (
             <Box
               sx={{
-                p: 3,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                background: 'rgba(0,0,0,0.02)',
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                },
+                gap: 3,
               }}
             >
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  onClick={openNewModal}
-                  startIcon={<AddIcon />}
+              {recibos.map((recibo) => (
+                <Paper
+                  key={recibo.id}
+                  elevation={0}
                   sx={{
+                    p: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
                     borderRadius: 2,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    transition: 'all 0.2s',
                     '&:hover': {
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
-                      background: 'linear-gradient(135deg, #5568d3 0%, #653a8b 100%)',
+                      boxShadow: 3,
+                      borderColor: 'primary.main',
                     },
                   }}
                 >
-                  Novo Recibo
-                </Button>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography variant="h6" fontWeight={600}>
+                      #{recibo.numero || recibo.id}
+                    </Typography>
+                    <Chip
+                      label={recibo.status || 'Emitido'}
+                      color="success"
+                      size="small"
+                    />
+                  </Box>
 
-                <Button
-                  variant="outlined"
-                  onClick={fetchRecibos}
-                  startIcon={<RefreshIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    borderWidth: 2,
-                    '&:hover': {
-                      borderWidth: 2,
-                    },
-                  }}
-                >
-                  Carregar Recibos
-                </Button>
-              </Box>
-            </Box>
-
-            {/* Conteúdo da lista */}
-            <Box sx={{ p: 3 }}>
-              {loading ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: 200,
-                  }}
-                >
-                  <Typography color="text.secondary">Carregando recibos...</Typography>
-                </Box>
-              ) : !recibos || recibos.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 6 }}>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    {hasLoaded ? 'Nenhum recibo encontrado' : 'Nenhum recibo carregado'}
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Cliente: {recibo.clienteNome}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {hasLoaded
-                      ? 'Gere um novo recibo para começar'
-                      : 'Clique em "Carregar Recibos" para ver a lista'}
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Data: {new Date(recibo.dataEmissao).toLocaleDateString()}
                   </Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={openNewModal}
-                    startIcon={<AddIcon />}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Novo Recibo
-                  </Button>
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: {
-                      xs: '1fr',
-                      md: 'repeat(2, 1fr)',
-                      lg: 'repeat(3, 1fr)',
-                    },
-                    gap: 3,
-                  }}
-                >
-                  {recibos.map((recibo) => (
-                    <Paper
-                      key={recibo.id}
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                          transform: 'translateY(-2px)',
-                        },
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Recibo #{recibo.id}
-                        </Typography>
-                        <Chip
-                          label={recibo.formaPagamento}
-                          size="small"
-                          color="primary"
-                          sx={{ borderRadius: 1 }}
-                        />
-                      </Box>
+                  <Typography variant="h5" color="primary" fontWeight={700} sx={{ mt: 2 }}>
+                    R$ {recibo.valor?.toFixed(2)}
+                  </Typography>
 
-                      <Typography variant="h5" color="primary" fontWeight={700} sx={{ mb: 1 }}>
-                        R$ {recibo.valorPago?.toFixed(2) || '0.00'}
-                      </Typography>
-
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        📅 {recibo.dataEmissao ? new Date(recibo.dataEmissao).toLocaleDateString('pt-BR') : '-'}
-                      </Typography>
-
-                      {recibo.descricao && (
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            mb: 2,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                          }}
-                        >
-                          {recibo.descricao}
-                        </Typography>
-                      )}
-
-                      <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => openEditModal(recibo)}
-                          sx={{ borderRadius: 1, flex: 1 }}
-                        >
-                          Editar
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="error"
-                          onClick={() => handleDelete(recibo.id)}
-                          sx={{ borderRadius: 1, flex: 1 }}
-                        >
-                          Excluir
-                        </Button>
-                      </Box>
-                    </Paper>
-                  ))}
-                </Box>
-              )}
+                  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+                    <Tooltip title="Imprimir">
+                      <IconButton size="small" color="primary">
+                        <PrintIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Editar">
+                      <IconButton size="small" color="primary" onClick={() => openEditModal(recibo)}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Excluir">
+                      <IconButton size="small" color="error" onClick={() => handleDelete(recibo.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Paper>
+              ))}
             </Box>
-          </Paper>
+          )}
         </Box>
-      </Fade>
+      </ContentCard>
 
-      {/* Modal com formulário */}
       <Dialog open={modalOpen} onClose={closeModal} maxWidth="md" fullWidth>
         <DialogContent>
           <ReciboForm recibo={selectedRecibo} onSave={handleSave} onCancel={closeModal} />
         </DialogContent>
       </Dialog>
-    </Box>
+    </PageContainer>
   );
 };
 

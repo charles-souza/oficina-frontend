@@ -3,27 +3,29 @@ export interface ClienteFormValues {
   cpfCnpj: string;
   telefone: string;
   email: string;
-  cep: string;
   endereco: string;
-  numero: string;
-  complemento?: string;
   bairro: string;
   cidade: string;
   estado: string;
+  cep: string;
+  observacoes?: string;
 }
 
 export interface VeiculoFormValues {
-  clienteId: number | string;
+  clienteId: string;
   placa: string;
   marca: string;
   modelo: string;
-  ano: number | string;
-  cor: string;
+  ano: number;
+  cor?: string;
+  chassi?: string;
+  renavam?: string;
+  observacoes?: string;
 }
 
 export interface OrcamentoFormValues {
-  clienteId: number | string;
-  veiculoId: number | string;
+  clienteId: string;
+  veiculoId: string;
   dataOrcamento: string;
   status: 'PENDENTE' | 'APROVADO' | 'REJEITADO';
   observacoes?: string;
@@ -35,8 +37,8 @@ export interface OrcamentoFormValues {
 }
 
 export interface ReciboFormValues {
-  clienteId: number | string;
-  veiculoId: number | string;
+  clienteId: string;
+  veiculoId: string;
   dataEmissao: string;
   valorTotal: number | string;
   formaPagamento: string;
@@ -47,6 +49,8 @@ export interface ReciboFormValues {
 export interface ServicoFormValues {
   nome: string;
   descricao?: string;
-  preco: number | string;
+  precoPadrao: number | string;
   tempoEstimado?: number | string;
+  categoria?: string;
+  ativo?: boolean;
 }

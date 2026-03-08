@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, Button, Box, IconButton, Typography } from '@mui/material';
+import { Button, Box, IconButton, Typography } from '@mui/material';
 import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import PersonIcon from '@mui/icons-material/Person';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -12,10 +10,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import NotesIcon from '@mui/icons-material/Notes';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
-import FormContainer from '../common/FormContainer';
 import FormField from '../common/FormField';
 import FormSection from '../common/FormSection';
 import FormActions from '../common/FormActions';
+import ClienteAutocomplete from '../common/ClienteAutocomplete';
+import VeiculoAutocomplete from '../common/VeiculoAutocomplete';
 import { orcamentoService } from '../../services/orcamentoService';
 import { useNotification } from '../../contexts/NotificationContext';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';
@@ -56,6 +55,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
     descricaoProblema: propOrcamento?.descricaoProblema || '',
     observacoes: propOrcamento?.observacoes || '',
     desconto: propOrcamento?.desconto || 0,
+    status: propOrcamento?.status || 'PENDENTE',
     itens:
       propOrcamento?.itens && Array.isArray(propOrcamento.itens) && propOrcamento.itens.length
         ? propOrcamento.itens
@@ -66,6 +66,37 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const payload = { ...values };
+
+    // Se estiver editando, incluir o ID no payload
+    if (isEditing && propOrcamento.id) {
+      payload.id = propOrcamento.id;
+    }
+
+    // Garantir que status existe
+    if (!payload.status) {
+      payload.status = 'PENDENTE';
+    }
+
+    // Calcular valorTotal de cada item
+    if (payload.itens && Array.isArray(payload.itens)) {
+      payload.itens = payload.itens.map(item => ({
+        ...item,
+        valorTotal: (item.quantidade || 0) * (item.valorUnitario || 0)
+      }));
+    }
+
+    // Calcular valorTotal do orçamento
+    const subtotal = (payload.itens || []).reduce((sum, item) => {
+      return sum + (item.valorTotal || 0);
+    }, 0);
+    payload.valorTotal = subtotal - (payload.desconto || 0);
+
+    console.log('Salvando orçamento:', {
+      isEditing,
+      propOrcamentoId: propOrcamento?.id,
+      payloadId: payload.id,
+      payload
+    });
 
     try {
       if (onSave && typeof onSave === 'function') {
@@ -83,6 +114,7 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
     } catch (err) {
       console.error('Erro ao salvar orçamento', err);
       showError(ERROR_MESSAGES.SAVE_QUOTE);
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -93,49 +125,38 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
   };
 
   return (
-    <FormContainer
-      title={isEditing ? 'Editar Orçamento' : 'Novo Orçamento'}
-      subtitle={
-        isEditing
-          ? 'Atualize as informações do orçamento'
-          : 'Crie um orçamento para um cliente e veículo'
-      }
-      maxWidth={1000}
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ values, handleSubmit, isSubmitting }) => (
-          <form onSubmit={handleSubmit}>
+      {({ values, handleSubmit, isSubmitting }) => (
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <FormSection
               title="Informações Gerais"
               subtitle="Cliente, veículo e datas do orçamento"
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} md={6}>
-                  <FormField
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
+                  <ClienteAutocomplete
                     name="clienteId"
-                    label="ID do Cliente"
-                    placeholder="Informe o ID do cliente"
+                    label="Cliente"
                     required
-                    startIcon={<PersonIcon />}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
-                  <FormField
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
+                  <VeiculoAutocomplete
                     name="veiculoId"
-                    label="ID do Veículo"
-                    placeholder="Informe o ID do veículo"
+                    label="Veículo"
                     required
-                    startIcon={<DirectionsCarIcon />}
+                    clienteId={values.clienteId}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="dataEmissao"
                     label="Data de Emissão"
@@ -143,9 +164,9 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                     startIcon={<CalendarTodayIcon />}
                     InputLabelProps={{ shrink: true }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="dataValidade"
                     label="Data de Validade"
@@ -154,9 +175,9 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                     InputLabelProps={{ shrink: true }}
                     helperText="Data limite de validade do orçamento"
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12}>
+                <Box sx={{ flex: '1 1 100%' }}>
                   <FormField
                     name="descricaoProblema"
                     label="Descrição do Problema"
@@ -165,8 +186,8 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                     rows={3}
                     startIcon={<DescriptionIcon />}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormSection
@@ -211,41 +232,41 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                           )}
                         </Box>
 
-                        <Grid container spacing={2}>
-                          <Grid xs={12} md={3}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                          <Box sx={{ flex: '1 1 calc(25% - 12px)', minWidth: { xs: '100%', md: 'calc(25% - 12px)' } }}>
                             <FormField
                               name={`itens.${index}.tipo`}
                               label="Tipo"
                               placeholder="Serviço/Peça"
                             />
-                          </Grid>
+                          </Box>
 
-                          <Grid xs={12} md={5}>
+                          <Box sx={{ flex: '1 1 calc(40% - 12px)', minWidth: { xs: '100%', md: 'calc(40% - 12px)' } }}>
                             <FormField
                               name={`itens.${index}.descricao`}
                               label="Descrição"
                               placeholder="Descreva o item"
                             />
-                          </Grid>
+                          </Box>
 
-                          <Grid xs={12} md={2}>
+                          <Box sx={{ flex: '1 1 calc(17.5% - 12px)', minWidth: { xs: 'calc(50% - 8px)', md: 'calc(17.5% - 12px)' } }}>
                             <FormField
                               name={`itens.${index}.quantidade`}
                               label="Quantidade"
                               type="number"
                               inputProps={{ min: 1 }}
                             />
-                          </Grid>
+                          </Box>
 
-                          <Grid xs={12} md={2}>
+                          <Box sx={{ flex: '1 1 calc(17.5% - 12px)', minWidth: { xs: 'calc(50% - 8px)', md: 'calc(17.5% - 12px)' } }}>
                             <FormField
                               name={`itens.${index}.valorUnitario`}
                               label="Valor (R$)"
                               type="number"
                               inputProps={{ min: 0, step: '0.01' }}
                             />
-                          </Grid>
-                        </Grid>
+                          </Box>
+                        </Box>
                       </Box>
                     ))}
 
@@ -275,8 +296,8 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
               subtitle="Desconto e observações"
               divider={false}
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} md={4}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
                   <FormField
                     name="desconto"
                     label="Desconto (R$)"
@@ -285,9 +306,9 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                     inputProps={{ min: 0, step: '0.01' }}
                     helperText="Valor do desconto aplicado"
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12}>
+                <Box sx={{ flex: '1 1 100%' }}>
                   <FormField
                     name="observacoes"
                     label="Observações"
@@ -297,8 +318,8 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
                     startIcon={<NotesIcon />}
                     inputProps={{ maxLength: 1000 }}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormActions
@@ -306,10 +327,10 @@ const OrcamentoForm = ({ orcamento: propOrcamento, onSave, onCancel }) => {
               loading={isSubmitting}
               submitLabel={isEditing ? 'Atualizar Orçamento' : 'Criar Orçamento'}
             />
-          </form>
-        )}
-      </Formik>
-    </FormContainer>
+          </Box>
+        </form>
+      )}
+    </Formik>
   );
 };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Grid, CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import PersonIcon from '@mui/icons-material/Person';
@@ -12,9 +12,8 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import HomeIcon from '@mui/icons-material/Home';
 import NotesIcon from '@mui/icons-material/Notes';
 
-import FormContainer from '../common/FormContainer';
-import FormField from '../common/FormField';
 import FormSection from '../common/FormSection';
+import FormField from '../common/FormField';
 import FormActions from '../common/FormActions';
 import { clienteService } from '../../services/clienteService';
 import { cepService } from '../../services/cepService';
@@ -24,18 +23,36 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';
 
 const validationSchema = Yup.object({
   nome: Yup.string()
-    .min(2, 'Nome deve ter no mínimo 2 caracteres')
+    .min(3, 'Nome deve ter no mínimo 3 caracteres')
+    .max(100, 'Nome deve ter no máximo 100 caracteres')
     .required('Nome é obrigatório'),
+  cpfCnpj: Yup.string()
+    .test('cpf-cnpj', 'CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos', (value) => {
+      if (!value) return true;
+      const digits = onlyDigits(value);
+      return digits.length === 11 || digits.length === 14;
+    }),
+  telefone: Yup.string()
+    .test('telefone', 'Telefone inválido', (value) => {
+      if (!value) return true;
+      const digits = onlyDigits(value);
+      return digits.length >= 10 && digits.length <= 11;
+    }),
   email: Yup.string().email('Email inválido'),
-  cpfCnpj: Yup.string(),
-  telefone: Yup.string(),
-  cep: Yup.string(),
-  cidade: Yup.string(),
-  estado: Yup.string().max(2, 'Use a sigla do estado (ex: SP)'),
+  cep: Yup.string()
+    .test('cep', 'CEP deve ter 8 dígitos', (value) => {
+      if (!value) return true;
+      const digits = onlyDigits(value);
+      return digits.length === 8;
+    }),
+  endereco: Yup.string(),
   bairro: Yup.string(),
-  rua: Yup.string(),
-  numero: Yup.string(),
-  complemento: Yup.string(),
+  cidade: Yup.string(),
+  estado: Yup.string()
+    .test('estado', 'Estado deve ter 2 caracteres', (value) => {
+      if (!value) return true;
+      return value.length === 2;
+    }),
   observacoes: Yup.string().max(1000, 'Máximo de 1000 caracteres'),
 });
 
@@ -54,16 +71,14 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
 
   const [initialValues, setInitialValues] = React.useState({
     nome: '',
-    email: '',
     cpfCnpj: '',
     telefone: '',
-    cep: '',
+    email: '',
+    endereco: '',
+    bairro: '',
     cidade: '',
     estado: '',
-    bairro: '',
-    rua: '',
-    numero: '',
-    complemento: '',
+    cep: '',
     observacoes: '',
   });
 
@@ -90,16 +105,14 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
 
         setInitialValues({
           nome: cliente.nome || '',
+          cpfCnpj: cliente.cpfCnpj ? formatCpfCnpj(cliente.cpfCnpj) : '',
+          telefone: cliente.telefone ? formatTelefone(cliente.telefone) : '',
           email: cliente.email || '',
-          cpfCnpj: cliente.cpfCnpj || '',
-          telefone: cliente.telefone || '',
-          cep: cliente.cep ? formatCep(cliente.cep) : '',
+          endereco: cliente.endereco || '',
+          bairro: cliente.bairro || '',
           cidade: cliente.cidade || '',
           estado: cliente.estado || '',
-          bairro: cliente.bairro || '',
-          rua: cliente.endereco || cliente.rua || '',
-          numero: cliente.numero || '',
-          complemento: cliente.complemento || '',
+          cep: cliente.cep ? formatCep(cliente.cep) : '',
           observacoes: cliente.observacoes || '',
         });
       } catch (err) {
@@ -132,8 +145,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
 
       lastCepRef.current = cleaned;
 
-      if (address.rua) setFieldValue('rua', address.rua);
-      if (address.complemento) setFieldValue('complemento', address.complemento);
+      if (address.rua) setFieldValue('endereco', address.rua);
       if (address.bairro) setFieldValue('bairro', address.bairro);
       if (address.cidade) setFieldValue('cidade', address.cidade);
       if (address.estado) setFieldValue('estado', address.estado);
@@ -148,32 +160,41 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const payload = {
-      nome: values.nome || '',
+      nome: values.nome.trim(),
       cpfCnpj: onlyDigits(values.cpfCnpj || ''),
-      telefone: values.telefone || '',
-      email: values.email || '',
-      endereco: values.rua
-        ? `${values.rua}${values.numero ? ', ' + values.numero : ''}${
-            values.complemento ? ' - ' + values.complemento : ''
-          }`
-        : '',
-      bairro: values.bairro || '',
-      cidade: values.cidade || '',
-      estado: values.estado || '',
+      telefone: onlyDigits(values.telefone || ''),
+      email: values.email?.trim() || undefined,
+      endereco: values.endereco?.trim() || undefined,
+      bairro: values.bairro?.trim() || undefined,
+      cidade: values.cidade?.trim() || undefined,
+      estado: values.estado?.toUpperCase().trim() || undefined,
       cep: onlyDigits(values.cep || ''),
-      observacoes: values.observacoes || '',
+      observacoes: values.observacoes?.trim() || undefined,
     };
 
     try {
+      const clienteId = id || (propCliente && propCliente.id);
+      console.log('ClienteForm - handleSubmit:', {
+        isEditing,
+        clienteId,
+        propClienteId: propCliente?.id,
+        urlId: id,
+        hasOnSave: typeof onSave === 'function'
+      });
+
       if (onSave && typeof onSave === 'function') {
+        if (clienteId) {
+          payload.id = clienteId;
+        }
+        console.log('ClienteForm - Chamando onSave com payload:', payload);
         await onSave(payload);
-        showSuccess(SUCCESS_MESSAGES.SAVE_CLIENT);
       } else {
         if (isEditing) {
-          const clienteId = id || (propCliente && propCliente.id);
+          console.log('ClienteForm - Atualizando cliente:', clienteId);
           await clienteService.update(clienteId, payload);
           showSuccess(SUCCESS_MESSAGES.SAVE_CLIENT);
         } else {
+          console.log('ClienteForm - Criando novo cliente');
           await clienteService.create(payload);
           showSuccess(SUCCESS_MESSAGES.SAVE_CLIENT);
         }
@@ -182,6 +203,7 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
     } catch (err) {
       if (mountedRef.current) showError(ERROR_MESSAGES.SAVE_CLIENT);
       console.error(err);
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -201,29 +223,21 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
   }
 
   return (
-    <FormContainer
-      title={isEditing ? 'Editar Cliente' : 'Novo Cliente'}
-      subtitle={
-        isEditing
-          ? 'Atualize as informações do cliente'
-          : 'Preencha os dados para cadastrar um novo cliente'
-      }
-      maxWidth={900}
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ values, handleSubmit, isSubmitting, setFieldValue }) => (
-          <form onSubmit={handleSubmit}>
+      {({ handleSubmit, isSubmitting, setFieldValue }) => (
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <FormSection
               title="Dados Pessoais"
               subtitle="Informações básicas do cliente"
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="nome"
                     label="Nome"
@@ -232,9 +246,9 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                     startIcon={<PersonIcon />}
                     inputProps={{ maxLength: 100 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="email"
                     label="Email"
@@ -243,9 +257,9 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                     startIcon={<EmailIcon />}
                     inputProps={{ maxLength: 100 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="cpfCnpj"
                     label="CPF/CNPJ"
@@ -257,9 +271,9 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                     }}
                     inputProps={{ maxLength: 18 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="telefone"
                     label="Telefone"
@@ -271,23 +285,23 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                     }}
                     inputProps={{ maxLength: 15 }}
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormSection
               title="Endereço"
               subtitle="Localização e dados de contato"
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} md={3}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(25% - 15px)', minWidth: { xs: '100%', md: 'calc(25% - 15px)' } }}>
                   <FormField
                     name="cep"
                     label="CEP"
                     placeholder="00000-000"
                     startIcon={<LocationOnIcon />}
                     loading={cepLoading}
-                    helperText={cepLoading ? 'Consultando CEP...' : 'Busca automática de endereço'}
+                    helperText={cepLoading ? 'Consultando CEP...' : 'Busca automática'}
                     onChange={(e) => {
                       const formatted = formatCep(e.target.value);
                       setFieldValue('cep', formatted);
@@ -299,63 +313,46 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
                     }}
                     inputProps={{ maxLength: 9 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="cidade"
                     label="Cidade"
                     placeholder="Nome da cidade"
                     inputProps={{ maxLength: 60 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={3}>
+                <Box sx={{ flex: '1 1 calc(25% - 15px)', minWidth: { xs: '100%', md: 'calc(25% - 15px)' } }}>
                   <FormField
                     name="estado"
                     label="Estado"
                     placeholder="UF"
                     inputProps={{ maxLength: 2 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="bairro"
                     label="Bairro"
                     placeholder="Nome do bairro"
                     inputProps={{ maxLength: 80 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 100%' }}>
                   <FormField
-                    name="rua"
-                    label="Rua"
-                    placeholder="Nome da rua"
+                    name="endereco"
+                    label="Endereço"
+                    placeholder="Rua, número, complemento"
                     startIcon={<HomeIcon />}
-                    inputProps={{ maxLength: 120 }}
+                    inputProps={{ maxLength: 200 }}
+                    helperText="Endereço completo (rua, número, complemento)"
                   />
-                </Grid>
-
-                <Grid xs={12} md={3}>
-                  <FormField
-                    name="numero"
-                    label="Número"
-                    placeholder="000"
-                    inputProps={{ maxLength: 12 }}
-                  />
-                </Grid>
-
-                <Grid xs={12} md={9}>
-                  <FormField
-                    name="complemento"
-                    label="Complemento"
-                    placeholder="Apartamento, bloco, etc."
-                    inputProps={{ maxLength: 80 }}
-                  />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormSection
@@ -379,10 +376,10 @@ const ClienteForm = ({ cliente: propCliente, onSave, onCancel }) => {
               loading={isSubmitting}
               submitLabel={isEditing ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
             />
-          </form>
-        )}
-      </Formik>
-    </FormContainer>
+          </Box>
+        </form>
+      )}
+    </Formik>
   );
 };
 
@@ -397,10 +394,7 @@ ClienteForm.propTypes = {
     cidade: PropTypes.string,
     estado: PropTypes.string,
     bairro: PropTypes.string,
-    rua: PropTypes.string,
     endereco: PropTypes.string,
-    numero: PropTypes.string,
-    complemento: PropTypes.string,
     observacoes: PropTypes.string,
   }),
   onSave: PropTypes.func,

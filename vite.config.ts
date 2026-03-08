@@ -79,7 +79,6 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'mui-core': ['@mui/material', '@emotion/react', '@emotion/styled'],
           'mui-icons': ['@mui/icons-material'],
-          'mui-lab': ['@mui/lab'],
           'charts': ['recharts'],
           'forms': ['formik', 'yup'],
           'utils': ['axios', 'date-fns'],
@@ -121,6 +120,5 @@ export default defineConfig({
       'axios',
       'date-fns',
     ],
-    exclude: ['@mui/lab'],
   },
 });

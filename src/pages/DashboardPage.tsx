@@ -3,8 +3,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
-  CircularProgress,
 } from '@mui/material';
 import {
   PieChart,
@@ -60,14 +58,20 @@ const DashboardPage: React.FC = () => {
   };
 
   if (loading) {
-    return <DashboardSkeleton />;
+    return (
+      <Box sx={{ p: 3 }}>
+        <DashboardSkeleton />
+      </Box>
+    );
   }
 
   if (!metrics) {
     return (
-      <Paper sx={{ p: 4, textAlign: 'center' }}>
-        <Typography>Erro ao carregar dados do dashboard</Typography>
-      </Paper>
+      <Box sx={{ p: 3 }}>
+        <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 3 }}>
+          <Typography>Erro ao carregar dados do dashboard</Typography>
+        </Paper>
+      </Box>
     );
   }
 
@@ -94,7 +98,7 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 3, height: '100%', bgcolor: 'background.default' }}>
       {/* Header */}
       <Paper
         elevation={0}
@@ -103,7 +107,7 @@ const DashboardPage: React.FC = () => {
           mb: 3,
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white',
-          borderRadius: 2,
+          borderRadius: 3,
         }}
       >
         <Typography variant="h4" fontWeight={700} gutterBottom>
@@ -115,8 +119,15 @@ const DashboardPage: React.FC = () => {
       </Paper>
 
       {/* Cards de Métricas Principais */}
-      <Grid container spacing={3} mb={3}>
-        <Grid xs={12} sm={6} md={3}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 3,
+          mb: 3,
+          flexWrap: 'wrap',
+        }}
+      >
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Clientes"
             value={metrics.totalClientes}
@@ -124,9 +135,9 @@ const DashboardPage: React.FC = () => {
             color="#667eea"
             subtitle="Total cadastrado"
           />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Veículos"
             value={metrics.totalVeiculos}
@@ -134,9 +145,9 @@ const DashboardPage: React.FC = () => {
             color="#06b6d4"
             subtitle="Total cadastrado"
           />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Orçamentos"
             value={metrics.totalOrcamentos}
@@ -144,9 +155,9 @@ const DashboardPage: React.FC = () => {
             color="#8b5cf6"
             subtitle="Total emitido"
           />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Ordens de Serviço"
             value={metrics.totalOrdensServico}
@@ -154,12 +165,19 @@ const DashboardPage: React.FC = () => {
             color="#f59e0b"
             subtitle="Total registrado"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Cards de Status das Ordens */}
-      <Grid container spacing={3} mb={3}>
-        <Grid xs={12} sm={6} md={3}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 3,
+          mb: 3,
+          flexWrap: 'wrap',
+        }}
+      >
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Abertas Hoje"
             value={metrics.ordensAbertasHoje}
@@ -167,9 +185,9 @@ const DashboardPage: React.FC = () => {
             color="#3b82f6"
             subtitle="Novas ordens"
           />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Em Andamento"
             value={metrics.ordensEmAndamento}
@@ -177,9 +195,9 @@ const DashboardPage: React.FC = () => {
             color="#06b6d4"
             subtitle="Ordens ativas"
           />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Aguardando Peça"
             value={metrics.ordensAguardandoPeca}
@@ -187,9 +205,9 @@ const DashboardPage: React.FC = () => {
             color="#f59e0b"
             subtitle="Ordens pausadas"
           />
-        </Grid>
+        </Box>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Box sx={{ flex: '1 1 calc(25% - 18px)', minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' } }}>
           <MetricCard
             title="Prontas"
             value={metrics.ordensProntas}
@@ -197,13 +215,19 @@ const DashboardPage: React.FC = () => {
             color="#10b981"
             subtitle="Para entrega"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Gráficos */}
-      <Grid container spacing={3} mb={3}>
-        {/* Gráfico de Status das Ordens */}
-        <Grid xs={12} md={6}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 3,
+          mb: 3,
+          flexWrap: 'wrap',
+        }}
+      >
+        <Box sx={{ flex: '1 1 calc(50% - 12px)', minWidth: { xs: '100%', lg: 'calc(50% - 12px)' } }}>
           <ChartCard
             title="Status das Ordens"
             subtitle="Distribuição atual das ordens de serviço"
@@ -239,10 +263,9 @@ const DashboardPage: React.FC = () => {
               </Box>
             )}
           </ChartCard>
-        </Grid>
+        </Box>
 
-        {/* Gráfico de Resumo Geral */}
-        <Grid xs={12} md={6}>
+        <Box sx={{ flex: '1 1 calc(50% - 12px)', minWidth: { xs: '100%', lg: 'calc(50% - 12px)' } }}>
           <ChartCard
             title="Resumo Geral"
             subtitle="Total de registros por categoria"
@@ -257,45 +280,98 @@ const DashboardPage: React.FC = () => {
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Cards de Receita */}
-      <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
-          <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
-            <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 3,
+          flexWrap: 'wrap',
+        }}
+      >
+        <Box sx={{ flex: '1 1 calc(33.333% - 16px)', minWidth: { xs: '100%', md: 'calc(33.333% - 16px)' } }}>
+          <Paper
+            sx={{
+              p: 3,
+              textAlign: 'center',
+              bgcolor: 'success.main',
+              color: 'white',
+              borderRadius: 3,
+              height: '100%',
+              minHeight: 140,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              '&:hover': {
+                boxShadow: 4,
+                transform: 'translateY(-2px)',
+              },
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1, fontWeight: 600 }}>
               Receita de Orçamentos
             </Typography>
             <Typography variant="h4" fontWeight={700}>
               {formatCurrency(metrics.receitaOrcamentos)}
             </Typography>
           </Paper>
-        </Grid>
+        </Box>
 
-        <Grid xs={12} md={4}>
-          <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'info.main', color: 'white' }}>
-            <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1 }}>
+        <Box sx={{ flex: '1 1 calc(33.333% - 16px)', minWidth: { xs: '100%', md: 'calc(33.333% - 16px)' } }}>
+          <Paper
+            sx={{
+              p: 3,
+              textAlign: 'center',
+              bgcolor: 'info.main',
+              color: 'white',
+              borderRadius: 3,
+              height: '100%',
+              minHeight: 140,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              '&:hover': {
+                boxShadow: 4,
+                transform: 'translateY(-2px)',
+              },
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ opacity: 0.9, mb: 1, fontWeight: 600 }}>
               Receita de Ordens
             </Typography>
             <Typography variant="h4" fontWeight={700}>
               {formatCurrency(metrics.receitaOrdensServico)}
             </Typography>
           </Paper>
-        </Grid>
+        </Box>
 
-        <Grid xs={12} md={4}>
+        <Box sx={{ flex: '1 1 calc(33.333% - 16px)', minWidth: { xs: '100%', md: 'calc(33.333% - 16px)' } }}>
           <Paper
             sx={{
               p: 3,
               textAlign: 'center',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
+              borderRadius: 3,
+              height: '100%',
+              minHeight: 140,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              '&:hover': {
+                boxShadow: 4,
+                transform: 'translateY(-2px)',
+              },
+              transition: 'all 0.3s ease',
             }}
           >
             <Box display="flex" alignItems="center" justifyContent="center" mb={1}>
               <TrendingUp sx={{ mr: 1 }} />
-              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
+              <Typography variant="subtitle2" sx={{ opacity: 0.9, fontWeight: 600 }}>
                 Receita Mensal
               </Typography>
             </Box>
@@ -303,8 +379,8 @@ const DashboardPage: React.FC = () => {
               {formatCurrency(metrics.receitaMensal)}
             </Typography>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

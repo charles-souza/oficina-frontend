@@ -1,57 +1,96 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  Box,
-} from '@mui/material';
-import { Close } from '@mui/icons-material';
+import { Dialog, DialogContent, IconButton, Box, Typography, Paper } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import BuildIcon from '@mui/icons-material/Build';
+import EditIcon from '@mui/icons-material/Edit';
 import OrdemServicoForm from './OrdemServicoForm';
-import { OrdemServicoRequest } from '../../types/api';
+import { OrdemServico, OrdemServicoRequest } from '../../types/api';
 
 interface OrdemServicoFormModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: OrdemServicoRequest) => void;
-  initialValues?: OrdemServicoRequest;
-  loading?: boolean;
+  ordem?: OrdemServico;
+  onSave: (values: OrdemServicoRequest) => void;
 }
 
 const OrdemServicoFormModal: React.FC<OrdemServicoFormModalProps> = ({
   open,
   onClose,
-  onSubmit,
-  initialValues,
-  loading = false,
+  ordem,
+  onSave,
 }) => {
+  const isEditing = !!ordem;
+
   return (
     <Dialog
-      open={open}
+      open={!!open}
       onClose={onClose}
-      maxWidth="lg"
       fullWidth
+      maxWidth="lg"
       PaperProps={{
         sx: {
-          borderRadius: 2,
+          borderRadius: 3,
+          maxHeight: '90vh',
         },
       }}
     >
-      <DialogTitle>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          {initialValues ? 'Editar Ordem de Serviço' : 'Nova Ordem de Serviço'}
-          <IconButton onClick={onClose} size="small">
-            <Close />
-          </IconButton>
+      {/* Header com gradiente */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: '12px 12px 0 0',
+          position: 'relative',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: 2,
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {isEditing ? <EditIcon /> : <BuildIcon />}
+          </Box>
+          <Box>
+            <Typography variant="h5" fontWeight={700}>
+              {isEditing ? 'Editar Ordem de Serviço' : 'Nova Ordem de Serviço'}
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+              {isEditing
+                ? 'Atualize as informações da ordem de serviço'
+                : 'Crie uma nova ordem de serviço para o cliente'}
+            </Typography>
+          </Box>
         </Box>
-      </DialogTitle>
-      <DialogContent dividers>
-        <OrdemServicoForm
-          initialValues={initialValues}
-          onSubmit={onSubmit}
-          onCancel={onClose}
-          loading={loading}
-        />
+
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 16,
+            top: 16,
+            color: 'white',
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+            },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </Paper>
+
+      <DialogContent sx={{ p: 3, pt: 3 }}>
+        <OrdemServicoForm ordem={ordem} onSave={onSave} onCancel={onClose} />
       </DialogContent>
     </Dialog>
   );

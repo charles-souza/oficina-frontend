@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
-  Typography,
-  Paper,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Stack,
-  CircularProgress,
+  Typography,
+  Paper,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import HistoricoTimeline from '../components/historico/HistoricoTimeline';
+import { PageContainer, PageHeader, ContentCard, LoadingState } from '../components/common';
 import { useNotification } from '../contexts/NotificationContext';
 import { historicoService } from '../services/historicoService';
 import { veiculoService } from '../services/veiculoService';
@@ -38,7 +38,6 @@ const HistoricoPage: React.FC = () => {
     if (selectedVeiculo) {
       loadHistoricosByVeiculo(selectedVeiculo as number);
     } else {
-      // Limpa o histórico quando nenhum veículo está selecionado
       setHistoricos([]);
     }
   }, [selectedVeiculo]);
@@ -74,25 +73,11 @@ const HistoricoPage: React.FC = () => {
   };
 
   return (
-    <Box>
-      {/* Header */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          mb: 3,
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Histórico de Serviços
-        </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.9 }}>
-          Visualize todo o histórico de eventos e alterações
-        </Typography>
-      </Paper>
+    <PageContainer>
+      <PageHeader
+        title="Histórico de Serviços"
+        subtitle="Visualize todo o histórico de eventos e alterações"
+      />
 
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>
@@ -128,7 +113,7 @@ const HistoricoPage: React.FC = () => {
             variant="outlined"
             startIcon={<Refresh />}
             onClick={handleRefresh}
-            disabled={loading}
+            disabled={loading || !selectedVeiculo}
           >
             Atualizar
           </Button>
@@ -137,9 +122,11 @@ const HistoricoPage: React.FC = () => {
 
       {/* Timeline de Histórico */}
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress />
-        </Box>
+        <ContentCard>
+          <Box sx={{ p: 3 }}>
+            <LoadingState message="Carregando histórico..." />
+          </Box>
+        </ContentCard>
       ) : !selectedVeiculo ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -159,9 +146,13 @@ const HistoricoPage: React.FC = () => {
           </Typography>
         </Paper>
       ) : (
-        <HistoricoTimeline historicos={historicos} />
+        <ContentCard>
+          <Box sx={{ p: 3 }}>
+            <HistoricoTimeline historicos={historicos} />
+          </Box>
+        </ContentCard>
       )}
-    </Box>
+    </PageContainer>
   );
 };
 

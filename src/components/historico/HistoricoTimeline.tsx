@@ -1,19 +1,11 @@
 import React from 'react';
 import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
-  TimelineOppositeContent,
-} from '@mui/lab';
-import {
   Paper,
   Typography,
   Box,
   Chip,
   Avatar,
+  Stack,
 } from '@mui/material';
 import {
   Add,
@@ -82,33 +74,63 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
   }
 
   return (
-    <Timeline position="right">
+    <Box sx={{ position: 'relative', pl: { xs: 0, sm: 4 } }}>
       {historicos.map((historico, index) => {
         const config = eventoConfig[historico.tipoEvento] || { icon: <Edit />, color: 'info' as const };
         const isLast = index === historicos.length - 1;
 
         return (
-          <TimelineItem key={historico.id}>
-            {/* Data/Hora do evento */}
-            <TimelineOppositeContent
-              sx={{ m: 'auto 0', maxWidth: '150px' }}
-              align="right"
-              variant="body2"
-              color="text.secondary"
+          <Box
+            key={historico.id}
+            sx={{
+              position: 'relative',
+              pb: isLast ? 0 : 4,
+              display: 'flex',
+              gap: 2,
+            }}
+          >
+            {/* Linha vertical da timeline (apenas em telas maiores) */}
+            {!isLast && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: { xs: '19px', sm: '19px' },
+                  top: '48px',
+                  bottom: 0,
+                  width: '2px',
+                  bgcolor: 'divider',
+                  display: { xs: 'block', sm: 'block' },
+                }}
+              />
+            )}
+
+            {/* Ícone do evento */}
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 1,
+                flexShrink: 0,
+              }}
             >
-              {formatDate(historico.dataEvento)}
-            </TimelineOppositeContent>
-
-            {/* Separador com ícone */}
-            <TimelineSeparator>
-              <TimelineDot color={config.color} sx={{ p: 1 }}>
+              <Avatar
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: `${config.color}.main`,
+                }}
+              >
                 {config.icon}
-              </TimelineDot>
-              {!isLast && <TimelineConnector />}
-            </TimelineSeparator>
+              </Avatar>
+            </Box>
 
-            {/* Conteúdo do evento */}
-            <TimelineContent sx={{ py: '12px', px: 2 }}>
+            {/* Conteúdo */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'flex-start', sm: 'center' }} mb={1}>
+                <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                  {formatDate(historico.dataEvento)}
+                </Typography>
+              </Stack>
+
               <Paper
                 elevation={2}
                 sx={{
@@ -120,7 +142,7 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
                 }}
               >
                 {/* Cabeçalho com tipo de evento */}
-                <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+                <Box display="flex" alignItems="center" justifyContent="space-between" mb={1} flexWrap="wrap" gap={1}>
                   <Typography variant="h6" component="span" fontWeight={600}>
                     {historico.tipoEvento.replace(/_/g, ' ')}
                   </Typography>
@@ -138,7 +160,7 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
 
                 {/* Mudança de status (se aplicável) */}
                 {historico.statusAnterior && historico.statusNovo && (
-                  <Box display="flex" alignItems="center" gap={1} mb={1}>
+                  <Box display="flex" alignItems="center" gap={1} mb={1} flexWrap="wrap">
                     <Chip
                       label={statusLabels[historico.statusAnterior] || historico.statusAnterior}
                       size="small"
@@ -154,7 +176,7 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
                 )}
 
                 {/* Informações adicionais */}
-                <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
                   {/* Veículo */}
                   <Box>
                     <Typography variant="caption" color="text.secondary">
@@ -181,7 +203,7 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
                       {historico.usuarioResponsavel}
                     </Typography>
                   </Box>
-                </Box>
+                </Stack>
 
                 {/* Número da OS (se disponível) */}
                 {historico.ordemServicoNumero && (
@@ -195,11 +217,11 @@ const HistoricoTimeline: React.FC<HistoricoTimelineProps> = ({ historicos }) => 
                   </Box>
                 )}
               </Paper>
-            </TimelineContent>
-          </TimelineItem>
+            </Box>
+          </Box>
         );
       })}
-    </Timeline>
+    </Box>
   );
 };
 

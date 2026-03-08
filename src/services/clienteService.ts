@@ -1,5 +1,6 @@
 import api from './api';
 import { withErrorHandling } from '../utils/errorHandler';
+import { removeUndefinedFields } from '../utils/objectUtils';
 import { ERROR_MESSAGES } from '../constants';
 import { Cliente, PaginatedResponse } from '../types';
 
@@ -19,7 +20,11 @@ export const clienteService = {
     );
   },
 
-  getById: async (id: number): Promise<Cliente> => {
+  /**
+   * Busca um cliente por ID (UUID)
+   * @param id - ID do cliente (UUID)
+   */
+  getById: async (id: string): Promise<Cliente> => {
     return withErrorHandling(
       async () => {
         const response = await api.get<Cliente>(`/clientes/${id}`);
@@ -42,24 +47,41 @@ export const clienteService = {
   create: async (cliente: Omit<Cliente, 'id'>): Promise<Cliente> => {
     return withErrorHandling(
       async () => {
-        const response = await api.post<Cliente>('/clientes', cliente);
+        const cleanedCliente = removeUndefinedFields(cliente);
+        const response = await api.post<Cliente>('/clientes', cleanedCliente);
         return response.data;
       },
       ERROR_MESSAGES.SAVE_CLIENT
     );
   },
 
-  update: async (id: number, cliente: Partial<Cliente>): Promise<Cliente> => {
-    return withErrorHandling(
-      async () => {
-        const response = await api.put<Cliente>(`/clientes/${id}`, cliente);
-        return response.data;
-      },
-      ERROR_MESSAGES.SAVE_CLIENT
-    );
+  /**
+   * Atualiza um cliente existente
+   * @param id - ID do cliente (UUID)
+   */
+  update: async (id: string, cliente: Partial<Cliente>): Promise<Cliente> => {
+    try {
+      console.log('clienteService.update - Iniciando atualização:', { id, cliente });
+      const cleanedCliente = removeUndefinedFields(cliente);
+      const response = await api.put<Cliente>(`/clientes/${id}`, cleanedCliente);
+      console.log('clienteService.update - Resposta do backend:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('clienteService.update - ERRO:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        error
+      });
+      throw error;
+    }
   },
 
-  delete: async (id: number): Promise<void> => {
+  /**
+   * Deleta um cliente (soft delete)
+   * @param id - ID do cliente (UUID)
+   */
+  delete: async (id: string): Promise<void> => {
     return withErrorHandling(
       async () => {
         await api.delete(`/clientes/${id}`);

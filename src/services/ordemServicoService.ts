@@ -1,4 +1,5 @@
 import api from './api';
+import { removeUndefinedFields } from '../utils/objectUtils';
 import {
   OrdemServico,
   OrdemServicoRequest,
@@ -57,7 +58,8 @@ export const ordemServicoService = {
    * Criar nova ordem de serviço
    */
   create: async (ordem: OrdemServicoRequest): Promise<OrdemServico> => {
-    const response = await api.post<OrdemServico>(BASE_URL, ordem);
+    const cleanedOrdem = removeUndefinedFields(ordem);
+    const response = await api.post<OrdemServico>(BASE_URL, cleanedOrdem);
     return response.data;
   },
 
@@ -65,7 +67,8 @@ export const ordemServicoService = {
    * Atualizar ordem de serviço existente
    */
   update: async (id: number, ordem: OrdemServicoRequest): Promise<OrdemServico> => {
-    const response = await api.put<OrdemServico>(`${BASE_URL}/${id}`, ordem);
+    const cleanedOrdem = removeUndefinedFields(ordem);
+    const response = await api.put<OrdemServico>(`${BASE_URL}/${id}`, cleanedOrdem);
     return response.data;
   },
 

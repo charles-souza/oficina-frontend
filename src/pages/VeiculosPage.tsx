@@ -1,11 +1,21 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Typography, Button, Paper, Fade } from '@mui/material';
+import { Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import VeiculoList from '../components/veiculos/VeiculoList';
 import VeiculoFormModal from '../components/veiculos/VeiculoFormModal';
 import { veiculoService } from '../services/veiculoService';
-import ConfirmDialog from '../components/common/ConfirmDialog';
+import { clienteService } from '../services/clienteService';
+import {
+  PageContainer,
+  PageHeader,
+  ActionBar,
+  ContentCard,
+  EmptyState,
+  LoadingState,
+  ErrorState,
+  ConfirmDialog,
+} from '../components/common';
 import { useNotification } from '../contexts/NotificationContext';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants';
 
@@ -24,22 +34,93 @@ const VeiculosPage = () => {
   const [total, setTotal] = useState(0);
   const [hasLoaded, setHasLoaded] = useState(false);
 
+  // Cache para evitar buscar o mesmo cliente múltiplas vezes
+  const clienteCache = React.useRef<Map<string, { nome: string; notFound?: boolean }>>(new Map());
+
+  const enrichVeiculos = async (veiculosData) => {
+    // Enriquecer veículos com dados do cliente
+    const enriched = await Promise.all(
+      veiculosData.map(async (veiculo) => {
+        try {
+          // Se já tem o nome do cliente, retornar como está
+          if (veiculo.clienteNome) {
+            return veiculo;
+          }
+
+          const enrichedVeiculo = { ...veiculo };
+
+          // Buscar cliente se não tiver o nome
+          if (veiculo.clienteId) {
+            // Verificar cache primeiro
+            const cached = clienteCache.current.get(veiculo.clienteId);
+            if (cached) {
+              enrichedVeiculo.clienteNome = cached.notFound ? 'Cliente não encontrado' : cached.nome;
+              return enrichedVeiculo;
+            }
+
+            // Validar se é um UUID válido antes de buscar
+            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(veiculo.clienteId);
+
+            if (isValidUUID) {
+              try {
+                const cliente = await clienteService.getById(veiculo.clienteId);
+                enrichedVeiculo.clienteNome = cliente.nome;
+                // Adicionar ao cache
+                clienteCache.current.set(veiculo.clienteId, { nome: cliente.nome });
+              } catch (error: any) {
+                // Silenciar erro 404 (cliente não encontrado) - é esperado em dev
+                if (error.status !== 404) {
+                  console.error(`Erro ao buscar cliente ${veiculo.clienteId}:`, error);
+                }
+                enrichedVeiculo.clienteNome = 'Cliente não encontrado';
+                // Adicionar ao cache como não encontrado
+                clienteCache.current.set(veiculo.clienteId, { nome: '', notFound: true });
+              }
+            } else {
+              enrichedVeiculo.clienteNome = `ID inválido`;
+              // Adicionar ao cache como inválido
+              clienteCache.current.set(veiculo.clienteId, { nome: '', notFound: true });
+            }
+          }
+
+          return enrichedVeiculo;
+        } catch (error) {
+          console.error('Erro ao enriquecer veículo:', error);
+          return veiculo;
+        }
+      })
+    );
+
+    return enriched;
+  };
+
   const fetchVeiculos = useCallback(
     async (p = 0, size = rowsPerPage) => {
       setLoading(true);
       try {
         const data = await veiculoService.getAll(p, size);
+
+        let veiculosData = [];
         if (data && data.content) {
-          setVeiculos(data.content);
+          veiculosData = data.content;
           setTotal(data.totalElements || data.total || 0);
         } else if (Array.isArray(data)) {
-          setVeiculos(data);
+          veiculosData = data;
           setTotal(data.length);
         } else {
           setVeiculos([]);
           setTotal(0);
+          setHasLoaded(true);
+          setError(null);
+          setLoading(false);
+          return;
         }
+
+        // Enriquecer com dados do cliente
+        const enriched = await enrichVeiculos(veiculosData);
+        setVeiculos(enriched);
         setHasLoaded(true);
+        setError(null);
       } catch (err) {
         console.error('Erro ao buscar veiculos', err);
         setError(ERROR_MESSAGES.LOAD_VEHICLES);
@@ -69,9 +150,18 @@ const VeiculosPage = () => {
   const handleSave = async (payload) => {
     try {
       const idToUse = (payload && payload.id) || (selectedVeiculo && selectedVeiculo.id);
+      console.log('VeiculosPage - handleSave:', {
+        payloadId: payload?.id,
+        selectedVeiculoId: selectedVeiculo?.id,
+        idToUse,
+        payload
+      });
+
       if (idToUse) {
+        console.log('VeiculosPage - Chamando veiculoService.update com ID:', idToUse);
         await veiculoService.update(idToUse, payload);
       } else {
+        console.log('VeiculosPage - Chamando veiculoService.create');
         await veiculoService.create(payload);
       }
       showSuccess(SUCCESS_MESSAGES.SAVE_VEHICLE);
@@ -108,159 +198,70 @@ const VeiculosPage = () => {
     }
   };
 
+  const actions = [
+    {
+      label: 'Novo Veículo',
+      icon: <AddIcon />,
+      onClick: openNewModal,
+    },
+    {
+      label: 'Carregar Veículos',
+      icon: <RefreshIcon />,
+      onClick: () => fetchVeiculos(0, rowsPerPage),
+    },
+  ];
+
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Fade in timeout={400}>
-        <Box>
-          {/* Header com gradiente */}
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 3,
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-            }}
-          >
-            <Typography variant="h4" component="h1" fontWeight={600}>
-              Gerenciamento de Veículos
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
-              Cadastre e gerencie todos os veículos dos clientes
-            </Typography>
-          </Paper>
+    <PageContainer>
+      <PageHeader
+        title="Gerenciamento de Veículos"
+        subtitle="Cadastre e gerencie todos os veículos dos clientes"
+      />
 
-          {/* Card principal */}
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 3,
-              overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-            }}
-          >
-            {/* Barra de ações */}
-            <Box
-              sx={{
-                p: 3,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                background: 'rgba(0,0,0,0.02)',
+      <ContentCard>
+        <ActionBar actions={actions} />
+
+        <Box sx={{ p: 3 }}>
+          {loading ? (
+            <LoadingState message="Carregando veículos..." />
+          ) : error ? (
+            <ErrorState message={error} onRetry={() => fetchVeiculos(0, rowsPerPage)} />
+          ) : !veiculos || veiculos.length === 0 ? (
+            <EmptyState
+              title={hasLoaded ? 'Nenhum veículo encontrado' : 'Nenhum veículo carregado'}
+              description={
+                hasLoaded
+                  ? 'Cadastre um novo veículo para começar'
+                  : 'Clique em "Carregar Veículos" para ver a lista'
+              }
+              action={{
+                label: 'Novo Veículo',
+                icon: <AddIcon />,
+                onClick: openNewModal,
               }}
-            >
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  onClick={openNewModal}
-                  startIcon={<AddIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    '&:hover': {
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
-                      background: 'linear-gradient(135deg, #5568d3 0%, #653a8b 100%)',
-                    },
-                  }}
-                >
-                  Novo Veículo
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  onClick={() => fetchVeiculos(0, rowsPerPage)}
-                  startIcon={<RefreshIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    borderWidth: 2,
-                    '&:hover': {
-                      borderWidth: 2,
-                    },
-                  }}
-                >
-                  Carregar Veículos
-                </Button>
-              </Box>
-            </Box>
-
-            {/* Conteúdo da lista */}
-            <Box sx={{ p: 3 }}>
-              {loading ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: 200,
-                  }}
-                >
-                  <Typography color="text.secondary">Carregando veículos...</Typography>
-                </Box>
-              ) : error ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography color="error" gutterBottom>
-                    {error}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => fetchVeiculos(0, rowsPerPage)}
-                    sx={{ mt: 2, borderRadius: 2 }}
-                  >
-                    Tentar novamente
-                  </Button>
-                </Box>
-              ) : !veiculos || veiculos.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 6 }}>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    {hasLoaded ? 'Nenhum veículo encontrado' : 'Nenhum veículo carregado'}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {hasLoaded
-                      ? 'Cadastre um novo veículo para começar'
-                      : 'Clique em "Carregar Veículos" para ver a lista'}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={openNewModal}
-                    startIcon={<AddIcon />}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Novo Veículo
-                  </Button>
-                </Box>
-              ) : (
-                <VeiculoList
-                  veiculos={veiculos}
-                  onDelete={handleDeleteConfirm}
-                  onEdit={openEditModal}
-                  page={page}
-                  rowsPerPage={rowsPerPage}
-                  totalCount={total}
-                  onPageChange={(e, p) => {
-                    setPage(p);
-                    fetchVeiculos(p, rowsPerPage);
-                  }}
-                  onRowsPerPageChange={async (e) => {
-                    const s = parseInt(e.target.value, 10);
-                    setRowsPerPage(s);
-                    setPage(0);
-                    await fetchVeiculos(0, s);
-                  }}
-                />
-              )}
-            </Box>
-          </Paper>
+            />
+          ) : (
+            <VeiculoList
+              veiculos={veiculos}
+              onDelete={handleDeleteConfirm}
+              onEdit={openEditModal}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalCount={total}
+              onPageChange={(e, p) => {
+                setPage(p);
+                fetchVeiculos(p, rowsPerPage);
+              }}
+              onRowsPerPageChange={async (e) => {
+                const s = parseInt(e.target.value, 10);
+                setRowsPerPage(s);
+                setPage(0);
+                await fetchVeiculos(0, s);
+              }}
+            />
+          )}
         </Box>
-      </Fade>
+      </ContentCard>
 
       <VeiculoFormModal open={modalOpen} onClose={closeModal} veiculo={selectedVeiculo} onSave={handleSave} />
 
@@ -272,7 +273,7 @@ const VeiculosPage = () => {
         onConfirm={handleDelete}
         loading={deleting}
       />
-    </Box>
+    </PageContainer>
   );
 };
 

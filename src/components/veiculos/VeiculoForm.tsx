@@ -1,33 +1,40 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Grid, CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
-import PersonIcon from '@mui/icons-material/Person';
 import NotesIcon from '@mui/icons-material/Notes';
 
-import FormContainer from '../common/FormContainer';
 import FormField from '../common/FormField';
 import FormSection from '../common/FormSection';
 import FormActions from '../common/FormActions';
+import ClienteAutocomplete from '../common/ClienteAutocomplete';
 import { veiculoService } from '../../services/veiculoService';
 import { useNotification } from '../../contexts/NotificationContext';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';
 
 const validationSchema = Yup.object({
-  placa: Yup.string().required('Placa é obrigatória'),
-  marca: Yup.string(),
-  modelo: Yup.string(),
-  ano: Yup.string().matches(/^\d{0,4}$/, 'Ano inválido'),
+  placa: Yup.string()
+    .required('Placa é obrigatória')
+    .matches(/^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/i, 'Placa inválida (formato: ABC-1234 ou ABC1D23)'),
+  marca: Yup.string().required('Marca é obrigatória'),
+  modelo: Yup.string().required('Modelo é obrigatório'),
+  ano: Yup.number()
+    .required('Ano é obrigatório')
+    .min(1900, 'Ano deve ser maior que 1900')
+    .max(2100, 'Ano deve ser menor que 2100')
+    .integer('Ano deve ser um número inteiro'),
   cor: Yup.string(),
-  chassi: Yup.string(),
-  renavam: Yup.string(),
-  clienteId: Yup.string(),
+  chassi: Yup.string()
+    .matches(/^[A-HJ-NPR-Z0-9]{17}$|^$/, 'Chassi inválido (deve ter 17 caracteres)'),
+  renavam: Yup.string()
+    .matches(/^\d{11}$|^$/, 'RENAVAM deve ter 11 dígitos'),
+  clienteId: Yup.string().required('ID do cliente é obrigatório'),
   observacoes: Yup.string().max(1000, 'Máximo de 1000 caracteres'),
 });
 
@@ -94,26 +101,50 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
   }, [id, propVeiculo, showError]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    const payload = { ...values };
+    const payload = {
+      placa: values.placa.toUpperCase().trim(),
+      marca: values.marca.trim(),
+      modelo: values.modelo.trim(),
+      ano: parseInt(values.ano, 10),
+      cor: values.cor?.trim() || undefined,
+      chassi: values.chassi?.toUpperCase().trim() || undefined,
+      renavam: values.renavam?.trim() || undefined,
+      observacoes: values.observacoes?.trim() || undefined,
+      clienteId: values.clienteId.trim(),
+    };
 
     try {
+      const veiculoId = id || (propVeiculo && propVeiculo.id);
+      console.log('VeiculoForm - handleSubmit:', {
+        isEditing,
+        veiculoId,
+        propVeiculoId: propVeiculo?.id,
+        urlId: id,
+        hasOnSave: typeof onSave === 'function'
+      });
+
       if (onSave && typeof onSave === 'function') {
+        if (veiculoId) {
+          payload.id = veiculoId;
+        }
+        console.log('VeiculoForm - Chamando onSave com payload:', payload);
         await onSave(payload);
-        showSuccess(SUCCESS_MESSAGES.SAVE_VEHICLE);
       } else {
         if (isEditing) {
-          const veiculoId = id || (propVeiculo && propVeiculo.id);
+          console.log('VeiculoForm - Atualizando veículo:', veiculoId);
           await veiculoService.update(veiculoId, payload);
           showSuccess(SUCCESS_MESSAGES.SAVE_VEHICLE);
         } else {
+          console.log('VeiculoForm - Criando novo veículo');
           await veiculoService.create(payload);
           showSuccess(SUCCESS_MESSAGES.SAVE_VEHICLE);
         }
         navigate('/veiculos');
       }
     } catch (err) {
-      console.error(err);
-      if (mountedRef.current) showError(ERROR_MESSAGES.SAVE_VEHICLE);
+      console.error('Erro ao salvar veículo:', err);
+      if (mountedRef.current) showError(err.message || ERROR_MESSAGES.SAVE_VEHICLE);
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -133,29 +164,21 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
   }
 
   return (
-    <FormContainer
-      title={isEditing ? 'Editar Veículo' : 'Novo Veículo'}
-      subtitle={
-        isEditing
-          ? 'Atualize as informações do veículo'
-          : 'Cadastre um novo veículo no sistema'
-      }
-      maxWidth={900}
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ handleSubmit, isSubmitting }) => (
-          <form onSubmit={handleSubmit}>
+      {({ handleSubmit, isSubmitting }) => (
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <FormSection
               title="Identificação do Veículo"
               subtitle="Informações principais para identificação"
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} md={4}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
                   <FormField
                     name="placa"
                     label="Placa"
@@ -164,37 +187,41 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                     startIcon={<DirectionsCarIcon />}
                     inputProps={{ maxLength: 10 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={4}>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
                   <FormField
                     name="marca"
                     label="Marca"
                     placeholder="Ex: Toyota, Ford, Honda"
+                    required
                     inputProps={{ maxLength: 50 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={4}>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
                   <FormField
                     name="modelo"
                     label="Modelo"
                     placeholder="Ex: Corolla, Fiesta"
+                    required
                     inputProps={{ maxLength: 50 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={4}>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
                   <FormField
                     name="ano"
                     label="Ano"
+                    type="number"
                     placeholder="2024"
+                    required
                     startIcon={<CalendarTodayIcon />}
-                    inputProps={{ maxLength: 4 }}
+                    inputProps={{ min: 1900, max: 2100 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={4}>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
                   <FormField
                     name="cor"
                     label="Cor"
@@ -202,45 +229,45 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
                     startIcon={<ColorLensIcon />}
                     inputProps={{ maxLength: 30 }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={4}>
-                  <FormField
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
+                  <ClienteAutocomplete
                     name="clienteId"
-                    label="ID do Cliente"
-                    placeholder="Informe o ID do proprietário"
-                    startIcon={<PersonIcon />}
-                    helperText="ID do cliente proprietário do veículo"
+                    label="Cliente"
+                    required
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormSection
               title="Documentação"
               subtitle="Chassi e Renavam do veículo"
             >
-              <Grid container spacing={2.5}>
-                <Grid xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="chassi"
                     label="Chassi"
-                    placeholder="Digite o número do chassi"
+                    placeholder="17 caracteres (sem I, O, Q)"
                     startIcon={<FingerprintIcon />}
-                    inputProps={{ maxLength: 50 }}
+                    inputProps={{ maxLength: 17 }}
+                    helperText="Chassi deve ter exatamente 17 caracteres"
                   />
-                </Grid>
+                </Box>
 
-                <Grid xs={12} md={6}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
                   <FormField
                     name="renavam"
                     label="Renavam"
-                    placeholder="Digite o número do Renavam"
+                    placeholder="11 dígitos"
                     startIcon={<FingerprintIcon />}
-                    inputProps={{ maxLength: 20 }}
+                    inputProps={{ maxLength: 11 }}
+                    helperText="RENAVAM deve ter exatamente 11 dígitos"
                   />
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </FormSection>
 
             <FormSection
@@ -264,10 +291,10 @@ const VeiculoForm = ({ veiculo: propVeiculo, onSave, onCancel }) => {
               loading={isSubmitting}
               submitLabel={isEditing ? 'Atualizar Veículo' : 'Cadastrar Veículo'}
             />
-          </form>
-        )}
-      </Formik>
-    </FormContainer>
+          </Box>
+        </form>
+      )}
+    </Formik>
   );
 };
 

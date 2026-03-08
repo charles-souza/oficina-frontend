@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
-  Typography,
-  Button,
   TextField,
-  Paper,
   IconButton,
   InputAdornment,
-  Fade,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -16,7 +12,16 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ClienteList from '../components/clientes/ClienteList';
 import ClienteFormModal from '../components/clientes/ClienteFormModal';
 import { clienteService } from '../services/clienteService';
-import ConfirmDialog from '../components/common/ConfirmDialog';
+import {
+  PageContainer,
+  PageHeader,
+  ActionBar,
+  ContentCard,
+  EmptyState,
+  LoadingState,
+  ErrorState,
+  ConfirmDialog,
+} from '../components/common';
 import { useNotification } from '../contexts/NotificationContext';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants';
 
@@ -111,10 +116,23 @@ const ClientesPage = () => {
     setModalOpen(false);
   };
 
-  const handleSave = async (cliente) => {
+  const handleSave = async (payload) => {
     try {
-      if (cliente && cliente.id) await clienteService.update(cliente.id, cliente);
-      else await clienteService.create(cliente);
+      const idToUse = (payload && payload.id) || (selectedCliente && selectedCliente.id);
+      console.log('ClientesPage - handleSave:', {
+        payloadId: payload?.id,
+        selectedClienteId: selectedCliente?.id,
+        idToUse,
+        payload
+      });
+
+      if (idToUse) {
+        console.log('ClientesPage - Chamando clienteService.update com ID:', idToUse);
+        await clienteService.update(idToUse, payload);
+      } else {
+        console.log('ClientesPage - Chamando clienteService.create');
+        await clienteService.create(payload);
+      }
       showSuccess(SUCCESS_MESSAGES.SAVE_CLIENT);
       if (searchTerm.trim()) await fetchByName(searchTerm.trim());
       else await fetchAll(0, rowsPerPage);
@@ -124,6 +142,7 @@ const ClientesPage = () => {
       console.error('Erro ao salvar cliente:', err);
       setError(ERROR_MESSAGES.SAVE_CLIENT);
       showError(ERROR_MESSAGES.SAVE_CLIENT);
+      throw err;
     }
   };
 
@@ -187,210 +206,118 @@ const ClientesPage = () => {
     setError(null);
   };
 
-  return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Fade in timeout={400}>
-        <Box>
-          {/* Header com gradiente */}
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 3,
-              p: 3,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-            }}
-          >
-            <Typography variant="h4" component="h1" fontWeight={600}>
-              Gerenciamento de Clientes
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
-              Cadastre e gerencie todos os seus clientes
-            </Typography>
-          </Paper>
+  const actions = [
+    {
+      label: 'Novo Cliente',
+      icon: <AddIcon />,
+      onClick: openNewModal,
+    },
+    {
+      label: 'Carregar Clientes',
+      icon: <RefreshIcon />,
+      onClick: () => {
+        setSearchTerm('');
+        fetchAll(0, rowsPerPage);
+        setHasSearched(true);
+      },
+    },
+  ];
 
-          {/* Card principal */}
-          <Paper
-            elevation={1}
+  return (
+    <PageContainer>
+      <PageHeader
+        title="Gerenciamento de Clientes"
+        subtitle="Cadastre e gerencie todos os seus clientes"
+      />
+
+      <ContentCard>
+        <ActionBar actions={actions}>
+          <Box
+            component="form"
+            onSubmit={handleSearch}
             sx={{
-              borderRadius: 3,
-              overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+              display: 'flex',
+              gap: 1,
+              flexGrow: 1,
+              ml: 'auto',
             }}
           >
-            {/* Barra de ações */}
-            <Box
+            <TextField
+              size="small"
+              placeholder="Pesquisar por nome..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              fullWidth
               sx={{
-                p: 3,
-                borderBottom: '1px solid',
+                maxWidth: 400,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  backgroundColor: 'white',
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="pesquisar"
+                      onClick={handleSearch}
+                      edge="end"
+                      size="small"
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <IconButton
+              aria-label="limpar"
+              onClick={handleClear}
+              sx={{
+                border: '1px solid',
                 borderColor: 'divider',
-                background: 'rgba(0,0,0,0.02)',
+                borderRadius: 2,
               }}
             >
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
-                {/* Botão Novo Cliente */}
-                <Button
-                  variant="contained"
-                  onClick={openNewModal}
-                  startIcon={<AddIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    '&:hover': {
-                      boxShadow: '0 6px 16px rgba(0,0,0,0.25)',
-                      background: 'linear-gradient(135deg, #5568d3 0%, #653a8b 100%)',
-                    },
-                  }}
-                >
-                  Novo Cliente
-                </Button>
+              <ClearIcon />
+            </IconButton>
+          </Box>
+        </ActionBar>
 
-                {/* Botão Carregar Clientes */}
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setSearchTerm('');
-                    fetchAll(0, rowsPerPage);
-                    setHasSearched(true);
-                  }}
-                  startIcon={<RefreshIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    borderWidth: 2,
-                    '&:hover': {
-                      borderWidth: 2,
-                    },
-                  }}
-                >
-                  Carregar Clientes
-                </Button>
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  alignItems: 'center',
-                }}
-              >
-                {/* Campo de busca */}
-                <Box
-                  component="form"
-                  onSubmit={handleSearch}
-                  sx={{
-                    display: 'flex',
-                    gap: 1,
-                    flexGrow: 1,
-                  }}
-                >
-                  <TextField
-                    size="small"
-                    placeholder="Pesquisar por nome..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    fullWidth
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: 2,
-                        backgroundColor: 'white',
-                      },
-                    }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="pesquisar"
-                            onClick={handleSearch}
-                            edge="end"
-                            size="small"
-                          >
-                            <SearchIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <IconButton
-                    aria-label="limpar"
-                    onClick={handleClear}
-                    sx={{
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                    }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Conteúdo da lista */}
-            <Box sx={{ p: 3 }}>
-              {loading ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: 200,
-                  }}
-                >
-                  <Typography color="text.secondary">Carregando clientes...</Typography>
-                </Box>
-              ) : error ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography color="error" gutterBottom>
-                    {error}
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      if (searchTerm.trim()) fetchByName(searchTerm.trim());
-                      else fetchAll(0, rowsPerPage);
-                    }}
-                    sx={{ mt: 2, borderRadius: 2 }}
-                  >
-                    Tentar novamente
-                  </Button>
-                </Box>
-              ) : !clientes || clientes.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 6 }}>
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    {hasSearched ? 'Nenhum cliente encontrado' : 'Nenhuma busca realizada'}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {hasSearched
-                      ? 'Tente uma nova busca ou limpe os filtros'
-                      : 'Use o campo de pesquisa ou clique em "Novo Cliente"'}
-                  </Typography>
-                </Box>
-              ) : (
-                <ClienteList
-                  clientes={clientes}
-                  onDelete={handleDeleteConfirm}
-                  onEdit={openEditModal}
-                  page={page}
-                  rowsPerPage={rowsPerPage}
-                  totalCount={total}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-              )}
-            </Box>
-          </Paper>
+        <Box sx={{ p: 3 }}>
+          {loading ? (
+            <LoadingState message="Carregando clientes..." />
+          ) : error ? (
+            <ErrorState
+              message={error}
+              onRetry={() => {
+                if (searchTerm.trim()) fetchByName(searchTerm.trim());
+                else fetchAll(0, rowsPerPage);
+              }}
+            />
+          ) : !clientes || clientes.length === 0 ? (
+            <EmptyState
+              title={hasSearched ? 'Nenhum cliente encontrado' : 'Nenhuma busca realizada'}
+              description={
+                hasSearched
+                  ? 'Tente uma nova busca ou limpe os filtros'
+                  : 'Use o campo de pesquisa ou clique em "Novo Cliente"'
+              }
+            />
+          ) : (
+            <ClienteList
+              clientes={clientes}
+              onDelete={handleDeleteConfirm}
+              onEdit={openEditModal}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              totalCount={total}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Box>
-      </Fade>
+      </ContentCard>
 
       <ClienteFormModal open={modalOpen} onClose={closeModal} cliente={selectedCliente} onSave={handleSave} />
 
@@ -402,7 +329,7 @@ const ClientesPage = () => {
         onConfirm={handleDelete}
         loading={deleting}
       />
-    </Box>
+    </PageContainer>
   );
 };
 

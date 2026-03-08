@@ -23,7 +23,13 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(cat:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(npm test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm cache:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(pkill:*)"
     ]
   }
 }

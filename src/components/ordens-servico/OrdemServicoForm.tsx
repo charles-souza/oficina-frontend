@@ -1,387 +1,395 @@
-import React, { useState, useEffect } from 'react';
-import { Formik, Form, FieldArray } from 'formik';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Button, Box, IconButton, Typography } from '@mui/material';
+import { Formik, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import {
-  Grid,
-  Button,
-  Box,
-  Typography,
-  Paper,
-  IconButton,
-  MenuItem,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  FormHelperText,
-} from '@mui/material';
-import { Add, Delete } from '@mui/icons-material';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import DescriptionIcon from '@mui/icons-material/Description';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import NotesIcon from '@mui/icons-material/Notes';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import BuildIcon from '@mui/icons-material/Build';
+
 import FormField from '../common/FormField';
-import {
-  OrdemServicoRequest,
-  OrdemServicoStatus,
-  ItemTipo,
-  ItemOrdemServico,
-  Cliente,
-  Veiculo,
-} from '../../types/api';
-import { clienteService } from '../../services/clienteService';
-import { veiculoService } from '../../services/veiculoService';
+import FormSection from '../common/FormSection';
+import FormActions from '../common/FormActions';
+import ClienteAutocomplete from '../common/ClienteAutocomplete';
+import VeiculoAutocomplete from '../common/VeiculoAutocomplete';
+import { OrdemServico, OrdemServicoRequest } from '../../types/api';
+import { useNotification } from '../../contexts/NotificationContext';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants';
 
-interface OrdemServicoFormProps {
-  initialValues?: OrdemServicoRequest;
-  onSubmit: (values: OrdemServicoRequest) => void;
-  onCancel: () => void;
-  loading?: boolean;
-}
-
-const validationSchema = Yup.object({
-  clienteId: Yup.number().required('Cliente é obrigatório').positive(),
-  veiculoId: Yup.number().required('Veículo é obrigatório').positive(),
-  dataAbertura: Yup.string().required('Data de abertura é obrigatória'),
+const itemSchema = Yup.object({
+  tipo: Yup.string().required('Tipo é obrigatório'),
   descricao: Yup.string().required('Descrição é obrigatória'),
-  desconto: Yup.number().min(0, 'Desconto não pode ser negativo').max(100, 'Desconto máximo 100%'),
-  itens: Yup.array()
-    .of(
-      Yup.object({
-        tipo: Yup.string().required('Tipo é obrigatório'),
-        descricao: Yup.string().required('Descrição é obrigatória'),
-        quantidade: Yup.number().required('Quantidade é obrigatória').positive(),
-        valorUnitario: Yup.number().required('Valor unitário é obrigatório').positive(),
-      })
-    )
-    .min(1, 'Adicione pelo menos um item'),
+  quantidade: Yup.number().min(1, 'Quantidade mínima é 1').required('Quantidade é obrigatória'),
+  valorUnitario: Yup.number().min(0, 'Valor deve ser positivo').required('Valor é obrigatório'),
 });
 
-const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({
-  initialValues,
-  onSubmit,
-  onCancel,
-  loading = false,
-}) => {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
-  const [loadingClientes, setLoadingClientes] = useState(false);
-  const [loadingVeiculos, setLoadingVeiculos] = useState(false);
+const validationSchema = Yup.object({
+  clienteId: Yup.string().required('Cliente é obrigatório'),
+  veiculoId: Yup.string().required('Veículo é obrigatório'),
+  dataAbertura: Yup.date().required('Data de abertura é obrigatória'),
+  descricao: Yup.string().required('Descrição é obrigatória'),
+  observacoes: Yup.string().max(1000, 'Máximo de 1000 caracteres'),
+  desconto: Yup.number().min(0, 'Desconto não pode ser negativo'),
+  itens: Yup.array().of(itemSchema).min(1, 'Adicione pelo menos um item'),
+});
 
-  const defaultValues: OrdemServicoRequest = initialValues || {
-    clienteId: 0,
-    veiculoId: 0,
-    dataAbertura: new Date().toISOString().split('T')[0],
-    descricao: '',
-    observacoes: '',
-    desconto: 0,
-    itens: [
-      {
-        tipo: ItemTipo.SERVICO,
-        descricao: '',
-        quantidade: 1,
-        valorUnitario: 0,
-      },
-    ],
+const emptyItem = () => ({
+  tipo: 'SERVICO',
+  descricao: '',
+  quantidade: 1,
+  valorUnitario: 0,
+});
+
+interface OrdemServicoFormProps {
+  ordem?: OrdemServico;
+  onSave: (values: OrdemServicoRequest) => void;
+  onCancel: () => void;
+}
+
+const OrdemServicoForm: React.FC<OrdemServicoFormProps> = ({ ordem, onSave, onCancel }) => {
+  const { showSuccess, showError } = useNotification();
+
+  const initialValues: OrdemServicoRequest = {
+    clienteId: ordem?.clienteId || '',
+    veiculoId: ordem?.veiculoId || '',
+    dataAbertura: ordem?.dataAbertura || new Date().toISOString().split('T')[0],
+    dataConclusao: ordem?.dataConclusao || undefined,
+    dataEntrega: ordem?.dataEntrega || undefined,
+    descricao: ordem?.descricao || '',
+    observacoes: ordem?.observacoes || '',
+    desconto: ordem?.desconto || 0,
+    itens:
+      ordem?.itens && Array.isArray(ordem.itens) && ordem.itens.length
+        ? ordem.itens
+        : [emptyItem()],
   };
 
-  useEffect(() => {
-    loadClientes();
-  }, []);
+  const isEditing = !!(ordem && ordem.id);
 
-  const loadClientes = async () => {
-    setLoadingClientes(true);
+  const handleSubmit = async (values: OrdemServicoRequest, { setSubmitting }: any) => {
+    const payload = { ...values };
+
+    // Calcular valorTotal de cada item
+    if (payload.itens && Array.isArray(payload.itens)) {
+      payload.itens = payload.itens.map((item) => ({
+        ...item,
+        valorTotal: (item.quantidade || 0) * (item.valorUnitario || 0),
+      }));
+    }
+
+    // Calcular valorTotal da ordem
+    const subtotal = (payload.itens || []).reduce((sum, item) => {
+      return sum + (item.valorTotal || 0);
+    }, 0);
+    payload.valorTotal = subtotal - (payload.desconto || 0);
+
+    console.log('Salvando ordem de serviço:', {
+      isEditing,
+      ordemId: ordem?.id,
+      payload,
+    });
+
     try {
-      const response = await clienteService.getAll(0, 100);
-      setClientes(response.content);
-    } catch (error) {
-      console.error('Erro ao carregar clientes:', error);
+      if (onSave && typeof onSave === 'function') {
+        await onSave(payload);
+      }
+    } catch (err) {
+      console.error('Erro ao salvar ordem de serviço', err);
+      showError(ERROR_MESSAGES.SAVE_QUOTE);
+      throw err;
     } finally {
-      setLoadingClientes(false);
+      setSubmitting(false);
     }
   };
 
-  const loadVeiculosByCliente = async (clienteId: number) => {
-    if (!clienteId) return;
-    setLoadingVeiculos(true);
-    try {
-      const data = await veiculoService.getAll(0, 100);
-      const veiculosDoCliente = data.content.filter((v) => v.clienteId === clienteId);
-      setVeiculos(veiculosDoCliente);
-    } catch (error) {
-      console.error('Erro ao carregar veículos:', error);
-    } finally {
-      setLoadingVeiculos(false);
-    }
+  const handleCancel = () => {
+    if (onCancel) onCancel();
   };
 
-  const calcularTotal = (itens: ItemOrdemServico[], desconto: number = 0) => {
-    const subtotal = itens.reduce(
-      (acc, item) => acc + item.quantidade * item.valorUnitario,
-      0
-    );
-    return subtotal - (subtotal * desconto) / 100;
+  const calcularSubtotal = (itens: any[]) => {
+    return itens.reduce((sum, item) => {
+      return sum + (item.quantidade || 0) * (item.valorUnitario || 0);
+    }, 0);
   };
 
   return (
     <Formik
-      initialValues={defaultValues}
+      initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, setFieldValue, errors, touched }) => (
-        <Form>
-          <Grid container spacing={3}>
-            {/* Seção Cliente e Veículo */}
-            <Grid xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Informações Básicas
-              </Typography>
-            </Grid>
+      {({ values, handleSubmit, isSubmitting }) => (
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <FormSection
+              title="Informações Gerais"
+              subtitle="Cliente, veículo e datas da ordem de serviço"
+            >
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
+                  <ClienteAutocomplete name="clienteId" label="Cliente" required />
+                </Box>
 
-            <Grid xs={12} md={6}>
-              <FormControl fullWidth error={touched.clienteId && Boolean(errors.clienteId)}>
-                <InputLabel>Cliente *</InputLabel>
-                <Select
-                  value={values.clienteId || ''}
-                  onChange={(e) => {
-                    const clienteId = Number(e.target.value);
-                    setFieldValue('clienteId', clienteId);
-                    setFieldValue('veiculoId', 0);
-                    loadVeiculosByCliente(clienteId);
-                  }}
-                  label="Cliente *"
-                  disabled={loadingClientes}
-                >
-                  <MenuItem value="">
-                    <em>Selecione um cliente</em>
-                  </MenuItem>
-                  {clientes.map((cliente) => (
-                    <MenuItem key={cliente.id} value={cliente.id}>
-                      {cliente.nome}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {touched.clienteId && errors.clienteId && (
-                  <FormHelperText>{errors.clienteId}</FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
+                  <VeiculoAutocomplete
+                    name="veiculoId"
+                    label="Veículo"
+                    required
+                    clienteId={values.clienteId}
+                  />
+                </Box>
 
-            <Grid xs={12} md={6}>
-              <FormControl fullWidth error={touched.veiculoId && Boolean(errors.veiculoId)}>
-                <InputLabel>Veículo *</InputLabel>
-                <Select
-                  value={values.veiculoId || ''}
-                  onChange={(e) => setFieldValue('veiculoId', Number(e.target.value))}
-                  label="Veículo *"
-                  disabled={!values.clienteId || loadingVeiculos}
-                >
-                  <MenuItem value="">
-                    <em>Selecione um veículo</em>
-                  </MenuItem>
-                  {veiculos.map((veiculo) => (
-                    <MenuItem key={veiculo.id} value={veiculo.id}>
-                      {veiculo.placa} - {veiculo.marca} {veiculo.modelo}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {touched.veiculoId && errors.veiculoId && (
-                  <FormHelperText>{errors.veiculoId}</FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
+                  <FormField
+                    name="dataAbertura"
+                    label="Data de Abertura"
+                    type="date"
+                    startIcon={<CalendarTodayIcon />}
+                    InputLabelProps={{ shrink: true }}
+                    required
+                  />
+                </Box>
 
-            <Grid xs={12} md={6}>
-              <FormField
-                name="dataAbertura"
-                label="Data de Abertura"
-                type="date"
-                required
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
+                  <FormField
+                    name="dataConclusao"
+                    label="Data de Conclusão"
+                    type="date"
+                    startIcon={<CalendarTodayIcon />}
+                    InputLabelProps={{ shrink: true }}
+                    helperText="Data prevista para conclusão"
+                  />
+                </Box>
 
-            <Grid xs={12} md={6}>
-              <FormField
-                name="dataConclusao"
-                label="Data de Conclusão"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
+                <Box sx={{ flex: '1 1 calc(33.333% - 14px)', minWidth: { xs: '100%', md: 'calc(33.333% - 14px)' } }}>
+                  <FormField
+                    name="dataEntrega"
+                    label="Data de Entrega"
+                    type="date"
+                    startIcon={<CalendarTodayIcon />}
+                    InputLabelProps={{ shrink: true }}
+                    helperText="Data de entrega ao cliente"
+                  />
+                </Box>
 
-            <Grid xs={12}>
-              <FormField
-                name="descricao"
-                label="Descrição do Problema"
-                multiline
-                rows={3}
-                required
-              />
-            </Grid>
-
-            <Grid xs={12}>
-              <FormField
-                name="observacoes"
-                label="Observações"
-                multiline
-                rows={2}
-              />
-            </Grid>
-
-            {/* Seção Itens */}
-            <Grid xs={12}>
-              <Divider sx={{ my: 2 }} />
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Itens da Ordem</Typography>
+                <Box sx={{ flex: '1 1 100%' }}>
+                  <FormField
+                    name="descricao"
+                    label="Descrição do Problema"
+                    placeholder="Descreva o problema relatado pelo cliente"
+                    multiline
+                    rows={3}
+                    startIcon={<DescriptionIcon />}
+                    required
+                  />
+                </Box>
               </Box>
-            </Grid>
+            </FormSection>
 
-            <Grid xs={12}>
+            <FormSection
+              title="Itens da Ordem de Serviço"
+              subtitle="Serviços e peças incluídos na ordem"
+            >
               <FieldArray name="itens">
                 {({ push, remove }) => (
                   <>
-                    {values.itens.map((item, index) => (
-                      <Paper key={index} sx={{ p: 2, mb: 2, backgroundColor: 'grey.50' }}>
-                        <Grid container spacing={2}>
-                          <Grid xs={12} sm={6} md={2}>
-                            <FormControl fullWidth size="small">
-                              <InputLabel>Tipo *</InputLabel>
-                              <Select
-                                value={item.tipo}
-                                onChange={(e) =>
-                                  setFieldValue(`itens.${index}.tipo`, e.target.value)
-                                }
-                                label="Tipo *"
-                              >
-                                <MenuItem value={ItemTipo.SERVICO}>Serviço</MenuItem>
-                                <MenuItem value={ItemTipo.PECA}>Peça</MenuItem>
-                              </Select>
-                            </FormControl>
-                          </Grid>
+                    {values.itens.map((item: any, index: number) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          mb: 3,
+                          p: 2.5,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 2,
+                          background: 'rgba(0,0,0,0.02)',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            mb: 2,
+                          }}
+                        >
+                          <Typography variant="subtitle2" fontWeight={600}>
+                            Item {index + 1}
+                          </Typography>
+                          {values.itens.length > 1 && (
+                            <IconButton
+                              color="error"
+                              onClick={() => remove(index)}
+                              size="small"
+                              aria-label={`Remover item ${index + 1}`}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
+                        </Box>
 
-                          <Grid xs={12} sm={6} md={4}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                          <Box sx={{ flex: '1 1 calc(25% - 12px)', minWidth: { xs: '100%', md: 'calc(25% - 12px)' } }}>
+                            <FormField
+                              name={`itens.${index}.tipo`}
+                              label="Tipo"
+                              select
+                              startIcon={<BuildIcon />}
+                              required
+                            >
+                              <option value="SERVICO">Serviço</option>
+                              <option value="PECA">Peça</option>
+                            </FormField>
+                          </Box>
+
+                          <Box sx={{ flex: '1 1 calc(40% - 12px)', minWidth: { xs: '100%', md: 'calc(40% - 12px)' } }}>
                             <FormField
                               name={`itens.${index}.descricao`}
                               label="Descrição"
-                              size="small"
+                              placeholder="Descreva o item"
                               required
                             />
-                          </Grid>
+                          </Box>
 
-                          <Grid xs={6} sm={4} md={2}>
+                          <Box
+                            sx={{ flex: '1 1 calc(17.5% - 12px)', minWidth: { xs: 'calc(50% - 8px)', md: 'calc(17.5% - 12px)' } }}
+                          >
                             <FormField
                               name={`itens.${index}.quantidade`}
-                              label="Qtd"
+                              label="Quantidade"
                               type="number"
-                              size="small"
+                              inputProps={{ min: 1 }}
                               required
                             />
-                          </Grid>
+                          </Box>
 
-                          <Grid xs={6} sm={4} md={2}>
+                          <Box
+                            sx={{ flex: '1 1 calc(17.5% - 12px)', minWidth: { xs: 'calc(50% - 8px)', md: 'calc(17.5% - 12px)' } }}
+                          >
                             <FormField
                               name={`itens.${index}.valorUnitario`}
-                              label="Valor Unit."
+                              label="Valor (R$)"
                               type="number"
-                              size="small"
+                              inputProps={{ min: 0, step: '0.01' }}
                               required
                             />
-                          </Grid>
+                          </Box>
+                        </Box>
 
-                          <Grid xs={12} sm={4} md={2}>
-                            <Box display="flex" alignItems="center" height="100%">
-                              <Typography variant="body2" mr={2}>
-                                Total: R${' '}
-                                {(item.quantidade * item.valorUnitario).toFixed(2)}
-                              </Typography>
-                              {values.itens.length > 1 && (
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() => remove(index)}
-                                >
-                                  <Delete />
-                                </IconButton>
-                              )}
-                            </Box>
-                          </Grid>
-                        </Grid>
-                      </Paper>
+                        <Box sx={{ mt: 2, textAlign: 'right' }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Subtotal do item:{' '}
+                            <strong>
+                              {new Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL',
+                              }).format((item.quantidade || 0) * (item.valorUnitario || 0))}
+                            </strong>
+                          </Typography>
+                        </Box>
+                      </Box>
                     ))}
 
                     <Button
-                      startIcon={<Add />}
                       variant="outlined"
-                      onClick={() =>
-                        push({
-                          tipo: ItemTipo.SERVICO,
-                          descricao: '',
-                          quantidade: 1,
-                          valorUnitario: 0,
-                        })
-                      }
-                      sx={{ mb: 2 }}
+                      startIcon={<AddCircleIcon />}
+                      onClick={() => push(emptyItem())}
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        borderWidth: 2,
+                        '&:hover': {
+                          borderWidth: 2,
+                        },
+                      }}
                     >
                       Adicionar Item
                     </Button>
                   </>
                 )}
               </FieldArray>
-            </Grid>
+            </FormSection>
 
-            {/* Seção Totais */}
-            <Grid xs={12}>
-              <Divider sx={{ my: 2 }} />
-            </Grid>
+            <FormSection
+              title="Informações Adicionais"
+              subtitle="Desconto, observações e valor total"
+              divider={false}
+            >
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
+                  <FormField
+                    name="desconto"
+                    label="Desconto (R$)"
+                    type="number"
+                    startIcon={<AttachMoneyIcon />}
+                    inputProps={{ min: 0, step: '0.01' }}
+                    helperText="Valor do desconto aplicado"
+                  />
+                </Box>
 
-            <Grid xs={12} md={6}>
-              <FormField
-                name="desconto"
-                label="Desconto (%)"
-                type="number"
-              />
-            </Grid>
+                <Box sx={{ flex: '1 1 calc(50% - 10px)', minWidth: { xs: '100%', md: 'calc(50% - 10px)' } }}>
+                  <Box
+                    sx={{
+                      p: 2.5,
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      borderRadius: 2,
+                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'center', color: 'white' }}>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        Valor Total
+                      </Typography>
+                      <Typography variant="h4" fontWeight={700}>
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        }).format(calcularSubtotal(values.itens) - (values.desconto || 0))}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
 
-            <Grid xs={12} md={6}>
-              <Box
-                sx={{
-                  p: 2,
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  borderRadius: 2,
-                  textAlign: 'center',
-                }}
-              >
-                <Typography variant="h6">
-                  Valor Total: R${' '}
-                  {calcularTotal(values.itens, values.desconto).toFixed(2)}
-                </Typography>
+                <Box sx={{ flex: '1 1 100%' }}>
+                  <FormField
+                    name="observacoes"
+                    label="Observações"
+                    placeholder="Informações adicionais sobre a ordem de serviço"
+                    multiline
+                    rows={4}
+                    startIcon={<NotesIcon />}
+                    inputProps={{ maxLength: 1000 }}
+                  />
+                </Box>
               </Box>
-            </Grid>
+            </FormSection>
 
-            {/* Botões */}
-            <Grid xs={12}>
-              <Box display="flex" gap={2} justifyContent="flex-end">
-                <Button
-                  variant="outlined"
-                  onClick={onCancel}
-                  disabled={loading}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={loading}
-                >
-                  {loading ? 'Salvando...' : 'Salvar'}
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </Form>
+            <FormActions
+              onCancel={handleCancel}
+              loading={isSubmitting}
+              submitLabel={isEditing ? 'Atualizar Ordem' : 'Criar Ordem'}
+            />
+          </Box>
+        </form>
       )}
     </Formik>
   );
+};
+
+OrdemServicoForm.propTypes = {
+  ordem: PropTypes.object,
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 export default OrdemServicoForm;

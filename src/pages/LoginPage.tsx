@@ -37,12 +37,21 @@ const LoginPage = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      if (err.response && err.response.data) {
+      if (err.response) {
+        const status = err.response.status;
         const srv = err.response.data;
-        const msg = srv.message || srv.error || JSON.stringify(srv);
-        setError(msg);
+
+        if (status === 403) {
+          const msg = srv.message || srv.error || 'Acesso negado. Verifique suas credenciais.';
+          setError(`Erro 403: ${msg}`);
+        } else if (status === 401) {
+          setError('Email ou senha incorretos.');
+        } else {
+          const msg = srv.message || srv.error || JSON.stringify(srv);
+          setError(`Erro ${status}: ${msg}`);
+        }
       } else if (err.request) {
-        setError('Nenhuma resposta do servidor. Verifique se o backend está rodando.');
+        setError('Nenhuma resposta do servidor. Verifique se o backend está rodando na porta 8080.');
       } else {
         setError(err.message || 'Erro ao tentar efetuar login');
       }
