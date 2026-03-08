@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Typography, Paper, CircularProgress, Alert } from '@mui/material';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', senha: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,8 +32,18 @@ const LoginPage = () => {
 
       if (data && (data.token || data.accessToken)) {
         const token = data.token || data.accessToken;
-        localStorage.setItem('token', token);
-        window.location.href = '/';
+        const roles = data.roles || '';
+
+        // Use AuthContext login method
+        login(token, roles);
+
+        // Store refresh token if present
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+
+        // Navigate to home
+        navigate('/');
       } else {
         setError('Resposta do servidor não contém token.');
       }

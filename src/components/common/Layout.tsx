@@ -23,25 +23,27 @@ import { DRAWER_WIDTH, ROUTES } from '../../constants';
 import ThemeToggle from './ThemeToggle';
 import UserProfile from './UserProfile';
 import { getPageTitle } from '../../hooks/usePageTitle';
+import { useAuth } from '../../contexts/AuthContext';
 
 const drawerWidth = DRAWER_WIDTH;
 
 const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: ROUTES.DASHBOARD },
-  { text: 'Clientes', icon: <PeopleIcon />, path: ROUTES.CLIENTS },
-  { text: 'Veículos', icon: <DirectionsCarIcon />, path: ROUTES.VEHICLES },
-  { text: 'Orçamentos', icon: <BuildIcon />, path: ROUTES.QUOTES },
-  { text: 'Ordens de Serviço', icon: <AssignmentIcon />, path: ROUTES.SERVICE_ORDERS },
-  { text: 'Histórico', icon: <HistoryIcon />, path: ROUTES.HISTORY },
+  { text: 'Dashboard', icon: <DashboardIcon />, path: ROUTES.DASHBOARD, roles: ['ROLE_ADMIN'] },
+  { text: 'Clientes', icon: <PeopleIcon />, path: ROUTES.CLIENTS, roles: ['ROLE_ADMIN'] },
+  { text: 'Veículos', icon: <DirectionsCarIcon />, path: ROUTES.VEHICLES, roles: ['ROLE_ADMIN'] },
+  { text: 'Orçamentos', icon: <BuildIcon />, path: ROUTES.QUOTES, roles: ['ROLE_ADMIN', 'ROLE_MECANICO'] },
+  { text: 'Ordens de Serviço', icon: <AssignmentIcon />, path: ROUTES.SERVICE_ORDERS, roles: ['ROLE_ADMIN', 'ROLE_MECANICO'] },
+  { text: 'Histórico', icon: <HistoryIcon />, path: ROUTES.HISTORY, roles: ['ROLE_ADMIN'] },
   {
     text: 'Financeiro',
     icon: <AttachMoneyIcon />,
+    roles: ['ROLE_ADMIN'],
     submenu: [
-      { text: 'Recibos', icon: <ReceiptIcon />, path: ROUTES.RECEIPTS },
-      { text: 'Relatório de Faturamento', icon: <AssessmentIcon />, path: ROUTES.FINANCIAL_REPORT },
+      { text: 'Recibos', icon: <ReceiptIcon />, path: ROUTES.RECEIPTS, roles: ['ROLE_ADMIN'] },
+      { text: 'Relatório de Faturamento', icon: <AssessmentIcon />, path: ROUTES.FINANCIAL_REPORT, roles: ['ROLE_ADMIN'] },
     ],
   },
-  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: ROUTES.SERVICES },
+  { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: ROUTES.SERVICES, roles: ['ROLE_ADMIN'] },
 ];
 
 const Layout = () => {
@@ -52,6 +54,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
+  const { hasAnyRole } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -66,6 +69,12 @@ const Layout = () => {
     setOpenSubmenu(openSubmenu === text ? null : text);
   };
 
+  // Filter menu items by user roles
+  const filteredMenuItems = menuItems.filter(item => {
+    if (!item.roles) return true;
+    return hasAnyRole(...item.roles);
+  });
+
   const drawer = (
     <Box>
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -77,7 +86,7 @@ const Layout = () => {
       <UserProfile />
       <Divider />
       <List>
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           if (item.submenu) {
             // Item com submenu
             const isSubmenuOpen = openSubmenu === item.text;
@@ -109,7 +118,10 @@ const Layout = () => {
                 </ListItem>
                 <Collapse in={isSubmenuOpen} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    {item.submenu.map((subItem) => {
+                    {item.submenu?.filter(subItem => {
+                      if (!subItem.roles) return true;
+                      return hasAnyRole(...subItem.roles);
+                    }).map((subItem) => {
                       const isActive = location.pathname === subItem.path;
                       return (
                         <ListItem key={subItem.text} disablePadding>

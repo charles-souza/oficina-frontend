@@ -5,6 +5,7 @@ import AppRoutes from './routes';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { queryClient } from './lib/react-query';
 import './App.css';
 
@@ -13,13 +14,15 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <NotificationProvider>
-            <div className="App">
-              <Router>
-                <AppRoutes />
-              </Router>
-            </div>
-          </NotificationProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <div className="App">
+                <Router>
+                  <AppRoutes />
+                </Router>
+              </div>
+            </NotificationProvider>
+          </AuthProvider>
         </ThemeProvider>
         {/* DevTools apenas em desenvolvimento */}
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}

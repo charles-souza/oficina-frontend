@@ -1,10 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
+import { useAuth } from './contexts/AuthContext';
 
 // Componentes carregados imediatamente (críticos)
 import Layout from './components/common/Layout';
 import LoginPage from './pages/LoginPage';
+import RoleGuard from './components/common/RoleGuard';
 
 // Lazy loading de páginas
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
@@ -39,7 +41,7 @@ const LoadingFallback = () => (
 );
 
 const AppRoutes = () => {
-  const isAuthenticated = !!localStorage.getItem('token');
+  const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
@@ -54,9 +56,11 @@ const AppRoutes = () => {
         <Route
           index
           element={
-            <Suspense fallback={<LoadingFallback />}>
-              <DashboardPage />
-            </Suspense>
+            <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+              <Suspense fallback={<LoadingFallback />}>
+                <DashboardPage />
+              </Suspense>
+            </RoleGuard>
           }
         />
         <Route
@@ -72,25 +76,31 @@ const AppRoutes = () => {
           <Route
             index
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <ClientesPage />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ClientesPage />
+                </Suspense>
+              </RoleGuard>
             }
           />
           <Route
             path="novo"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <ClienteForm />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ClienteForm />
+                </Suspense>
+              </RoleGuard>
             }
           />
           <Route
             path="editar/:id"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <ClienteForm />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ClienteForm />
+                </Suspense>
+              </RoleGuard>
             }
           />
         </Route>
@@ -99,25 +109,31 @@ const AppRoutes = () => {
           <Route
             index
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <VeiculosPage />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <VeiculosPage />
+                </Suspense>
+              </RoleGuard>
             }
           />
           <Route
             path="novo"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <VeiculoForm />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <VeiculoForm />
+                </Suspense>
+              </RoleGuard>
             }
           />
           <Route
             path="editar/:id"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <VeiculoForm />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <VeiculoForm />
+                </Suspense>
+              </RoleGuard>
             }
           />
         </Route>
@@ -126,25 +142,31 @@ const AppRoutes = () => {
           <Route
             index
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <OrcamentosPage />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN', 'ROLE_MECANICO']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <OrcamentosPage />
+                </Suspense>
+              </RoleGuard>
             }
           />
           <Route
             path="novo"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <OrcamentoForm />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN', 'ROLE_MECANICO']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <OrcamentoForm />
+                </Suspense>
+              </RoleGuard>
             }
           />
           <Route
             path="editar/:id"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <OrcamentoForm />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN', 'ROLE_MECANICO']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <OrcamentoForm />
+                </Suspense>
+              </RoleGuard>
             }
           />
         </Route>
@@ -154,34 +176,42 @@ const AppRoutes = () => {
             <Route
               index
               element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RecibosPage />
-                </Suspense>
+                <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <RecibosPage />
+                  </Suspense>
+                </RoleGuard>
               }
             />
             <Route
               path="novo"
               element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <ReciboForm />
-                </Suspense>
+                <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <ReciboForm />
+                  </Suspense>
+                </RoleGuard>
               }
             />
             <Route
               path="editar/:id"
               element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <ReciboForm />
-                </Suspense>
+                <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <ReciboForm />
+                  </Suspense>
+                </RoleGuard>
               }
             />
           </Route>
           <Route
             path="relatorio-faturamento"
             element={
-              <Suspense fallback={<LoadingFallback />}>
-                <RelatorioFaturamentoPage />
-              </Suspense>
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <RelatorioFaturamentoPage />
+                </Suspense>
+              </RoleGuard>
             }
           />
         </Route>
@@ -189,45 +219,55 @@ const AppRoutes = () => {
         <Route
           path="servicos"
           element={
-            <Suspense fallback={<LoadingFallback />}>
-              <ServicosPage />
-            </Suspense>
+            <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+              <Suspense fallback={<LoadingFallback />}>
+                <ServicosPage />
+              </Suspense>
+            </RoleGuard>
           }
         />
 
         <Route
           path="ordens-servico"
           element={
-            <Suspense fallback={<LoadingFallback />}>
-              <OrdensServicoPage />
-            </Suspense>
+            <RoleGuard allowedRoles={['ROLE_ADMIN', 'ROLE_MECANICO']}>
+              <Suspense fallback={<LoadingFallback />}>
+                <OrdensServicoPage />
+              </Suspense>
+            </RoleGuard>
           }
         />
 
         <Route
           path="historico"
           element={
-            <Suspense fallback={<LoadingFallback />}>
-              <HistoricoPage />
-            </Suspense>
+            <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+              <Suspense fallback={<LoadingFallback />}>
+                <HistoricoPage />
+              </Suspense>
+            </RoleGuard>
           }
         />
 
         <Route
           path="perfil"
           element={
-            <Suspense fallback={<LoadingFallback />}>
-              <PerfilPage />
-            </Suspense>
+            <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+              <Suspense fallback={<LoadingFallback />}>
+                <PerfilPage />
+              </Suspense>
+            </RoleGuard>
           }
         />
 
         <Route
           path="configuracoes"
           element={
-            <Suspense fallback={<LoadingFallback />}>
-              <ConfiguracoesPage />
-            </Suspense>
+            <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+              <Suspense fallback={<LoadingFallback />}>
+                <ConfiguracoesPage />
+              </Suspense>
+            </RoleGuard>
           }
         />
       </Route>

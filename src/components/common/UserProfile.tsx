@@ -8,6 +8,7 @@ import {
   ListItemIcon,
   Divider,
   IconButton,
+  Chip,
 } from '@mui/material';
 import {
   Person,
@@ -16,6 +17,7 @@ import {
   KeyboardArrowDown,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface UserProfileProps {
   userName?: string;
@@ -26,10 +28,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ userName, userEmail }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const { user, roles, logout: authLogout, hasRole } = useAuth();
 
-  // Pegar informações do usuário (placeholder - será integrado com context/API)
-  const displayName = userName || 'Usuário';
-  const displayEmail = userEmail || 'usuario@oficina.com';
+  // Get user information from AuthContext or props
+  const displayName = userName || user?.email?.split('@')[0] || 'Usuário';
+  const displayEmail = userEmail || user?.email || 'usuario@oficina.com';
+
+  // Determine role label
+  const getRoleLabel = () => {
+    if (hasRole('ROLE_ADMIN')) return 'Administrador';
+    if (hasRole('ROLE_MECANICO')) return 'Mecânico';
+    return 'Usuário';
+  };
+
+  const roleLabel = getRoleLabel();
 
   // Gerar iniciais para o avatar
   const getInitials = (name: string) => {
@@ -61,7 +73,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userName, userEmail }) => {
 
   const handleLogout = () => {
     handleClose();
-    localStorage.removeItem('token');
+    authLogout();
     navigate('/login');
   };
 
@@ -115,6 +127,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userName, userEmail }) => {
           >
             {displayEmail}
           </Typography>
+          <Chip
+            label={roleLabel}
+            size="small"
+            color={hasRole('ROLE_ADMIN') ? 'primary' : 'default'}
+            sx={{ mt: 0.5, height: 20, fontSize: '0.7rem' }}
+          />
         </Box>
         <IconButton size="small" sx={{ ml: 0.5 }}>
           <KeyboardArrowDown fontSize="small" />
