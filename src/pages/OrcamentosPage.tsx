@@ -256,6 +256,28 @@ const OrcamentosPage = () => {
     }
   };
 
+  const handlePrint = async (orcamento) => {
+    if (!orcamento.id) return;
+
+    try {
+      const pdfBlob = await orcamentoService.gerarPdf(orcamento.id);
+
+      // Criar URL temporária para o blob
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+
+      // Abrir em nova aba
+      window.open(pdfUrl, '_blank');
+
+      // Limpar URL após um tempo
+      setTimeout(() => {
+        window.URL.revokeObjectURL(pdfUrl);
+      }, 100);
+    } catch (err) {
+      console.error('Erro ao gerar PDF:', err);
+      showError('Erro ao gerar PDF do orçamento');
+    }
+  };
+
   const actions = [
     {
       label: 'Novo Orçamento',
@@ -303,6 +325,7 @@ const OrcamentosPage = () => {
               onEdit={openEditModal}
               onGerarOS={handleGerarOSConfirm}
               onStatusChange={handleStatusChange}
+              onPrint={handlePrint}
               page={page}
               rowsPerPage={rowsPerPage}
               totalCount={total}

@@ -120,13 +120,15 @@ export const orcamentoService = {
     );
   },
 
-  generatePdf: async (id: string | number): Promise<Blob> => {
+  gerarPdf: async (id: string | number): Promise<Blob> => {
     return withErrorHandling(
       async () => {
-        const response = await api.get<Blob>(`/orcamentos/${id}/pdf`);
+        const response = await api.get(`/orcamentos/${id}/pdf`, {
+          responseType: 'blob',
+        });
         return response.data;
       },
-      'Erro ao gerar PDF'
+      'Erro ao gerar PDF do orçamento.'
     );
   },
 

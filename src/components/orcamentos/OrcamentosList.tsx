@@ -22,13 +22,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BuildIcon from '@mui/icons-material/Build';
+import PrintIcon from '@mui/icons-material/Print';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import BlockIcon from '@mui/icons-material/Block';
 
-const OrcamentosList = ({ orcamentos = [], onEdit, onDelete, onGerarOS, onStatusChange, page=0, rowsPerPage=10, totalCount=0, onPageChange, onRowsPerPageChange }) => {
+const OrcamentosList = ({ orcamentos = [], onEdit, onDelete, onGerarOS, onStatusChange, onPrint, page=0, rowsPerPage=10, totalCount=0, onPageChange, onRowsPerPageChange }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedOrcamento, setSelectedOrcamento] = React.useState(null);
 
@@ -231,6 +232,19 @@ const OrcamentosList = ({ orcamentos = [], onEdit, onDelete, onGerarOS, onStatus
                           </IconButton>
                         </Tooltip>
                       )}
+
+                      <Tooltip title="Imprimir">
+                        <IconButton
+                          size="small"
+                          onClick={() => onPrint && onPrint(o)}
+                          sx={{
+                            color: 'primary.main',
+                            '&:hover': { bgcolor: 'primary.50' }
+                          }}
+                        >
+                          <PrintIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
 
                       <Tooltip title="Visualizar">
                         <IconButton
