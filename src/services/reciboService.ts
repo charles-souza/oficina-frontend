@@ -89,5 +89,20 @@ export const reciboService = {
       },
       ERROR_MESSAGES_RECIBOS.DELETE
     );
+  },
+
+  /**
+   * Gera o PDF do recibo
+   */
+  gerarPdf: async (id: string | number): Promise<Blob> => {
+    return withErrorHandling(
+      async () => {
+        const response = await api.get(`/recibos/${id}/pdf`, {
+          responseType: 'blob',
+        });
+        return response.data;
+      },
+      'Erro ao gerar PDF do recibo.'
+    );
   }
 };

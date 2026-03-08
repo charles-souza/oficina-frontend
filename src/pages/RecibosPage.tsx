@@ -85,10 +85,26 @@ const RecibosPage = () => {
     }
   };
 
-  const handlePrint = (recibo) => {
-    // Placeholder para funcionalidade de impressão
-    // Pode ser implementado com window.print() ou geração de PDF
-    showError('Funcionalidade de impressão em desenvolvimento');
+  const handlePrint = async (recibo) => {
+    if (!recibo.id) return;
+
+    try {
+      const pdfBlob = await reciboService.gerarPdf(recibo.id);
+
+      // Criar URL temporária para o blob
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+
+      // Abrir em nova aba
+      window.open(pdfUrl, '_blank');
+
+      // Limpar URL após um tempo
+      setTimeout(() => {
+        window.URL.revokeObjectURL(pdfUrl);
+      }, 100);
+    } catch (err) {
+      console.error('Erro ao gerar PDF:', err);
+      showError('Erro ao gerar PDF do recibo');
+    }
   };
 
   const actions = [
