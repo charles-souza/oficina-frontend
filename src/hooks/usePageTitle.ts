@@ -15,6 +15,7 @@ const routeTitles: Record<string, string> = {
   [ROUTES.HISTORY]: 'Histórico',
   [ROUTES.PROFILE]: 'Perfil',
   [ROUTES.SETTINGS]: 'Configurações',
+  [ROUTES.USERS]: 'Usuários',
 };
 
 /**

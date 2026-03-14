@@ -16,6 +16,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import HistoryIcon from '@mui/icons-material/History';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -44,6 +45,7 @@ const menuItems = [
     ],
   },
   { text: 'Serviços', icon: <HomeRepairServiceIcon />, path: ROUTES.SERVICES, roles: ['ROLE_ADMIN'] },
+  { text: 'Usuários', icon: <ManageAccountsIcon />, path: ROUTES.USERS, roles: ['ROLE_ADMIN'] },
 ];
 
 const Layout = () => {

@@ -54,6 +54,7 @@ export const ROUTES = {
   HISTORY: '/historico',
   PROFILE: '/perfil',
   SETTINGS: '/configuracoes',
+  USERS: '/usuarios',
 } as const;
 
 export const PAGINATION = {

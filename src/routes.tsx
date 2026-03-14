@@ -21,12 +21,14 @@ const HistoricoPage = lazy(() => import('./pages/HistoricoPage'));
 const PerfilPage = lazy(() => import('./pages/PerfilPage'));
 const ConfiguracoesPage = lazy(() => import('./pages/ConfiguracoesPage'));
 const RelatorioFaturamentoPage = lazy(() => import('./pages/RelatorioFaturamentoPage'));
+const UsuariosPage = lazy(() => import('./pages/UsuariosPage'));
 
 // Lazy loading de formulários
 const ClienteForm = lazy(() => import('./components/clientes/ClienteForm'));
 const VeiculoForm = lazy(() => import('./components/veiculos/VeiculoForm'));
 const OrcamentoForm = lazy(() => import('./components/orcamentos/OrcamentoForm'));
 const ReciboForm = lazy(() => import('./components/recibos/ReciboForm'));
+const UsuarioForm = lazy(() => import('./components/usuarios/UsuarioForm'));
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -270,6 +272,39 @@ const AppRoutes = () => {
             </RoleGuard>
           }
         />
+
+        <Route path="usuarios">
+          <Route
+            index
+            element={
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <UsuariosPage />
+                </Suspense>
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="novo"
+            element={
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <UsuarioForm />
+                </Suspense>
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="editar/:id"
+            element={
+              <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <UsuarioForm />
+                </Suspense>
+              </RoleGuard>
+            }
+          />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />
