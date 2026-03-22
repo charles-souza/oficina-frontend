@@ -254,7 +254,7 @@ const AppRoutes = () => {
         <Route
           path="perfil"
           element={
-            <RoleGuard allowedRoles={['ROLE_ADMIN']}>
+            <RoleGuard allowedRoles={['ROLE_ADMIN', 'ROLE_MECANICO', 'ROLE_USER']}>
               <Suspense fallback={<LoadingFallback />}>
                 <PerfilPage />
               </Suspense>

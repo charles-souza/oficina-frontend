@@ -171,13 +171,37 @@ const UsuarioForm: React.FC = () => {
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <Box p={3}>
-      <Paper sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
-        <Typography variant="h5" gutterBottom>
+    <Box>
+      {/* Header */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h4" fontWeight={700} gutterBottom>
           {isEditMode ? 'Editar Usuário' : 'Novo Usuário'}
         </Typography>
+        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+          {isEditMode
+            ? 'Atualize as informações e permissões do usuário'
+            : 'Adicione um novo usuário ao sistema'}
+        </Typography>
+      </Paper>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      {/* Formulário */}
+      <Paper sx={{ p: 4, maxWidth: 700, mx: 'auto' }}>
+        <Box component="form" onSubmit={handleSubmit}>
+          {isEditMode && usuario && (
+            <Alert severity="info" sx={{ mb: 3 }}>
+              Editando usuário: <strong>{usuario.email}</strong>
+            </Alert>
+          )}
+
           {!isEditMode && (
             <TextField
               fullWidth
@@ -186,21 +210,23 @@ const UsuarioForm: React.FC = () => {
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               error={!!errors.email}
-              helperText={errors.email}
+              helperText={errors.email || 'O email será usado para login'}
               margin="normal"
               required
+              autoFocus
             />
           )}
 
           <TextField
             fullWidth
-            label="Nome"
+            label="Nome Completo"
             value={formData.nome}
             onChange={(e) => handleChange('nome', e.target.value)}
             error={!!errors.nome}
-            helperText={errors.nome}
+            helperText={errors.nome || 'Nome que será exibido no sistema'}
             margin="normal"
             required
+            autoFocus={isEditMode}
           />
 
           {!isEditMode && (
@@ -220,32 +246,54 @@ const UsuarioForm: React.FC = () => {
           <TextField
             fullWidth
             select
-            label="Role"
+            label="Perfil de Acesso"
             value={formData.roles}
             onChange={(e) => handleChange('roles', e.target.value)}
             error={!!errors.roles}
-            helperText={errors.roles}
+            helperText={errors.roles || 'Define as permissões do usuário no sistema'}
             margin="normal"
             required
           >
-            <MenuItem value="ROLE_ADMIN">Administrador</MenuItem>
-            <MenuItem value="ROLE_MECANICO">Mecânico</MenuItem>
-            <MenuItem value="ROLE_USER">Usuário</MenuItem>
+            <MenuItem value="ROLE_ADMIN">
+              <Box>
+                <Typography fontWeight={600}>Administrador</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Acesso completo a todas as funcionalidades
+                </Typography>
+              </Box>
+            </MenuItem>
+            <MenuItem value="ROLE_MECANICO">
+              <Box>
+                <Typography fontWeight={600}>Mecânico</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Acesso a ordens de serviço e orçamentos
+                </Typography>
+              </Box>
+            </MenuItem>
+            <MenuItem value="ROLE_USER">
+              <Box>
+                <Typography fontWeight={600}>Usuário</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Acesso básico ao sistema
+                </Typography>
+              </Box>
+            </MenuItem>
           </TextField>
 
           {isEditMode && (
-            <Alert severity="info" sx={{ mt: 2 }}>
-              Email não pode ser alterado. Para alterar a senha, entre em contato com o administrador.
+            <Alert severity="warning" sx={{ mt: 3 }}>
+              <strong>Atenção:</strong> O email não pode ser alterado. A alteração de senha deve ser feita pelo próprio usuário na tela de perfil.
             </Alert>
           )}
 
-          <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
             <Button
               type="submit"
               variant="contained"
               color="primary"
               disabled={isSubmitting}
               fullWidth
+              size="large"
             >
               {isSubmitting ? (
                 <CircularProgress size={24} color="inherit" />
@@ -260,6 +308,7 @@ const UsuarioForm: React.FC = () => {
               onClick={() => navigate('/usuarios')}
               disabled={isSubmitting}
               fullWidth
+              size="large"
             >
               Cancelar
             </Button>

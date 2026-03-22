@@ -118,35 +118,80 @@ const UsuariosPage: React.FC = () => {
   }
 
   return (
-    <Box p={3}>
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5">
-            Gerenciamento de Usuários
-          </Typography>
+    <Box>
+      {/* Header */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant="h4" fontWeight={700} gutterBottom>
+              Usuários
+            </Typography>
+            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              Gerencie os usuários e permissões da oficina
+            </Typography>
+          </Box>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => navigate('/usuarios/novo')}
+            sx={{
+              bgcolor: 'white',
+              color: 'primary.main',
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.9)',
+              },
+            }}
           >
             Novo Usuário
           </Button>
         </Box>
+      </Paper>
 
+      {/* Conteúdo */}
+      <Paper sx={{ p: 3 }}>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell><strong>Nome</strong></TableCell>
                 <TableCell><strong>Email</strong></TableCell>
-                <TableCell><strong>Role</strong></TableCell>
+                <TableCell><strong>Perfil</strong></TableCell>
                 <TableCell align="right"><strong>Ações</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {usuarios?.map((usuario) => (
                 <TableRow key={usuario.id} hover>
-                  <TableCell>{usuario.nome}</TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {usuario.nome.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </Box>
+                      <Typography fontWeight={500}>{usuario.nome}</Typography>
+                    </Box>
+                  </TableCell>
                   <TableCell>{usuario.email}</TableCell>
                   <TableCell>
                     <Chip
@@ -160,7 +205,7 @@ const UsuariosPage: React.FC = () => {
                       size="small"
                       color="primary"
                       onClick={() => navigate(`/usuarios/editar/${usuario.id}`)}
-                      title="Editar"
+                      title="Editar usuário"
                     >
                       <EditIcon />
                     </IconButton>
@@ -168,7 +213,7 @@ const UsuariosPage: React.FC = () => {
                       size="small"
                       color="error"
                       onClick={() => handleDeleteClick(usuario)}
-                      title="Excluir"
+                      title="Excluir usuário"
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -180,10 +225,20 @@ const UsuariosPage: React.FC = () => {
         </TableContainer>
 
         {usuarios?.length === 0 && (
-          <Box textAlign="center" py={4}>
-            <Typography color="text.secondary">
-              Nenhum usuário encontrado
+          <Box textAlign="center" py={8}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              Nenhum usuário cadastrado
             </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Comece adicionando o primeiro usuário da oficina
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/usuarios/novo')}
+            >
+              Adicionar Usuário
+            </Button>
           </Box>
         )}
       </Paper>
@@ -194,7 +249,8 @@ const UsuariosPage: React.FC = () => {
         <DialogContent>
           <DialogContentText>
             Tem certeza que deseja excluir o usuário <strong>{usuarioToDelete?.nome}</strong> ({usuarioToDelete?.email})?
-            Esta ação não pode ser desfeita.
+            <br /><br />
+            Esta ação não pode ser desfeita e o usuário perderá acesso ao sistema.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
