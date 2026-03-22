@@ -24,8 +24,17 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Não fazer logout se for erro de senha incorreta no endpoint de alteração de senha
+      const isPasswordChangeEndpoint = error.config?.url?.includes('/perfil/senha');
+
+      if (!isPasswordChangeEndpoint) {
+        // Token inválido ou expirado - fazer logout
+        localStorage.removeItem('token');
+        localStorage.removeItem('oficinaId');
+        localStorage.removeItem('roles');
+        window.location.href = '/login';
+      }
+      // Se for endpoint de senha, apenas rejeita o erro sem fazer logout
     }
     return Promise.reject(error);
   }
