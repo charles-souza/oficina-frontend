@@ -11,8 +11,8 @@ import {
   Chip,
   CircularProgress,
   Alert,
-  Grid,
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import {
   Person,
   Email,
@@ -269,7 +269,7 @@ const PerfilPage: React.FC = () => {
       {/* Conteúdo */}
       <Grid container spacing={3}>
         {/* Card do Avatar */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 3, textAlign: 'center' }}>
             <Avatar
               sx={{
@@ -315,7 +315,7 @@ const PerfilPage: React.FC = () => {
         </Grid>
 
         {/* Card de Informações e Senha */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={3}>
             {/* Informações Pessoais */}
             <Paper sx={{ p: 3 }}>
