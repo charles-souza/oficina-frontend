@@ -33,7 +33,9 @@
       "Bash(find:*)",
       "Bash(jps:*)",
       "Bash(xargs kill -9 sleep 2 echo \"Processo encerrado. Vou iniciar novamente...\")",
-      "Bash(echo Aguardando backend inicializar...:*)"
+      "Bash(echo Aguardando backend inicializar...:*)",
+      "Bash(cd C:/projetos/oficina-saas && timeout 20 ./mvnw spring-boot:run 2>&1 | tail -50)",
+      "Bash(tasklist | grep \"7124\")"
     ]
   }
 }

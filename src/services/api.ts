@@ -27,14 +27,20 @@ api.interceptors.response.use(
       // Não fazer logout se for erro de senha incorreta no endpoint de alteração de senha
       const isPasswordChangeEndpoint = error.config?.url?.includes('/perfil/senha');
 
-      if (!isPasswordChangeEndpoint) {
+      // Endpoints que podem retornar 401 sem ser token expirado
+      const isAuthErrorEndpoint = isPasswordChangeEndpoint;
+
+      if (!isAuthErrorEndpoint) {
         // Token inválido ou expirado - fazer logout
+        console.log('401 Unauthorized: Token expirado ou inválido, fazendo logout...');
         localStorage.removeItem('token');
         localStorage.removeItem('oficinaId');
         localStorage.removeItem('roles');
         window.location.href = '/login';
+      } else {
+        // Erro de autenticação esperado (senha incorreta), não fazer logout
+        console.log('401 em endpoint protegido:', error.config?.url);
       }
-      // Se for endpoint de senha, apenas rejeita o erro sem fazer logout
     }
     return Promise.reject(error);
   }

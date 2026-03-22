@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de LocalStorage</title>
+</head>
+<body>
+    <h1>Teste de Autenticação</h1>
+    <button onclick="checkToken()">Verificar Token</button>
+    <button onclick="clearAll()">Limpar Tudo</button>
+    <pre id="output"></pre>
+    
+    <script>
+        function checkToken() {
+            const output = document.getElementById('output');
+            const token = localStorage.getItem('token');
+            const roles = localStorage.getItem('roles');
+            const oficinaId = localStorage.getItem('oficinaId');
+            
+            output.textContent = 'Token: ' + (token ? token.substring(0, 50) + '...' : 'NULL') + '\n';
+            output.textContent += 'Roles: ' + (roles || 'NULL') + '\n';
+            output.textContent += 'OficinaId: ' + (oficinaId || 'NULL') + '\n';
+            output.textContent += '\nTodos os itens no localStorage:\n';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                output.textContent += key + ': ' + localStorage.getItem(key).substring(0, 30) + '...\n';
+            }
+        }
+        
+        function clearAll() {
+            localStorage.clear();
+            alert('LocalStorage limpo!');
+        }
+    </script>
+</body>
+</html>

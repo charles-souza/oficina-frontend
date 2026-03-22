@@ -36,15 +36,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize from localStorage on mount
   useEffect(() => {
+    console.log('[AuthContext] Inicializando...');
     const token = localStorage.getItem('token');
     const storedRoles = localStorage.getItem('roles');
+
+    console.log('[AuthContext] Token no localStorage:', token ? 'ENCONTRADO' : 'NÃO ENCONTRADO');
+    console.log('[AuthContext] Roles no localStorage:', storedRoles);
 
     if (token && storedRoles) {
       try {
         const decoded = jwtDecode<JWTPayload>(token);
+        console.log('[AuthContext] Token decodificado com sucesso:', decoded.sub);
 
         // Check if token is expired
         if (decoded.exp * 1000 < Date.now()) {
+          console.log('[AuthContext] Token EXPIRADO, fazendo logout');
           logout();
           return;
         }
@@ -56,16 +62,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Parse roles from comma-separated string
         setRoles(storedRoles.split(',').map(r => r.trim()).filter(r => r.length > 0));
+        console.log('[AuthContext] Usuário autenticado:', decoded.sub);
       } catch (error) {
-        console.error('Failed to decode token:', error);
+        console.error('[AuthContext] Falha ao decodificar token:', error);
         logout();
       }
+    } else {
+      console.log('[AuthContext] Sem token ou roles - usuário NÃO autenticado');
     }
   }, []);
 
   const login = (token: string, rolesString: string) => {
     try {
+      console.log('[AuthContext] Login iniciado');
       const decoded = jwtDecode<JWTPayload>(token);
+      console.log('[AuthContext] Token decodificado:', decoded.sub);
 
       setUser({
         email: decoded.sub,
@@ -80,6 +91,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', token);
       localStorage.setItem('oficinaId', decoded.oficinaId);
       localStorage.setItem('roles', rolesString);
+      console.log('[AuthContext] Token salvo no localStorage');
+      console.log('[AuthContext] Verificação:', localStorage.getItem('token') ? 'Token encontrado' : 'Token NÃO encontrado');
     } catch (error) {
       console.error('Failed to decode token during login:', error);
       throw error;
@@ -87,12 +100,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    console.log('[AuthContext] LOGOUT chamado');
+    console.trace('[AuthContext] Stack trace do logout');
     setUser(null);
     setRoles([]);
     localStorage.removeItem('token');
     localStorage.removeItem('oficinaId');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('roles');
+    console.log('[AuthContext] localStorage limpo');
   };
 
   const hasRole = (role: string): boolean => {
