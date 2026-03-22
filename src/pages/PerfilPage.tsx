@@ -12,7 +12,6 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import {
   Person,
   Email,
@@ -164,17 +163,26 @@ const PerfilPage: React.FC = () => {
   const handleSavePassword = () => {
     const newErrors: Record<string, string> = {};
 
+    // Validação da senha atual
     if (!senhaData.senhaAtual) {
       newErrors.senhaAtual = 'Senha atual é obrigatória';
+    } else if (senhaData.senhaAtual.length < 6) {
+      newErrors.senhaAtual = 'Senha atual deve ter no mínimo 6 caracteres';
     }
 
+    // Validação da nova senha
     if (!senhaData.novaSenha) {
       newErrors.novaSenha = 'Nova senha é obrigatória';
     } else if (senhaData.novaSenha.length < 6) {
-      newErrors.novaSenha = 'Senha deve ter no mínimo 6 caracteres';
+      newErrors.novaSenha = 'Nova senha deve ter no mínimo 6 caracteres';
+    } else if (senhaData.novaSenha === senhaData.senhaAtual) {
+      newErrors.novaSenha = 'Nova senha deve ser diferente da senha atual';
     }
 
-    if (senhaData.novaSenha !== senhaData.confirmacaoSenha) {
+    // Validação da confirmação de senha
+    if (!senhaData.confirmacaoSenha) {
+      newErrors.confirmacaoSenha = 'Confirmação de senha é obrigatória';
+    } else if (senhaData.novaSenha !== senhaData.confirmacaoSenha) {
       newErrors.confirmacaoSenha = 'As senhas não coincidem';
     }
 
@@ -267,10 +275,15 @@ const PerfilPage: React.FC = () => {
       </Paper>
 
       {/* Conteúdo */}
-      <Grid container spacing={3}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' },
+          gap: 3,
+        }}
+      >
         {/* Card do Avatar */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 3, textAlign: 'center' }}>
+        <Paper sx={{ p: 3, textAlign: 'center' }}>
             <Avatar
               sx={{
                 width: 120,
@@ -312,11 +325,9 @@ const PerfilPage: React.FC = () => {
               </Typography>
             </Box>
           </Paper>
-        </Grid>
 
         {/* Card de Informações e Senha */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Stack spacing={3}>
+        <Stack spacing={3}>
             {/* Informações Pessoais */}
             <Paper sx={{ p: 3 }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -468,38 +479,74 @@ const PerfilPage: React.FC = () => {
               </Box>
 
               {changingPassword && (
-                <Stack spacing={2}>
-                  <TextField
-                    fullWidth
-                    type="password"
-                    label="Senha Atual"
-                    value={senhaData.senhaAtual}
-                    onChange={(e) => handleSenhaChange('senhaAtual', e.target.value)}
-                    error={!!errors.senhaAtual}
-                    helperText={errors.senhaAtual}
-                    size="small"
-                  />
-                  <TextField
-                    fullWidth
-                    type="password"
-                    label="Nova Senha"
-                    value={senhaData.novaSenha}
-                    onChange={(e) => handleSenhaChange('novaSenha', e.target.value)}
-                    error={!!errors.novaSenha}
-                    helperText={errors.novaSenha || 'Mínimo 6 caracteres'}
-                    size="small"
-                  />
-                  <TextField
-                    fullWidth
-                    type="password"
-                    label="Confirmar Nova Senha"
-                    value={senhaData.confirmacaoSenha}
-                    onChange={(e) => handleSenhaChange('confirmacaoSenha', e.target.value)}
-                    error={!!errors.confirmacaoSenha}
-                    helperText={errors.confirmacaoSenha}
-                    size="small"
-                  />
-                </Stack>
+                <Box>
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    <Typography variant="body2" fontWeight={600} gutterBottom>
+                      Requisitos de Segurança:
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      • Senha atual é obrigatória para confirmar sua identidade
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      • Nova senha deve ter no mínimo 6 caracteres
+                    </Typography>
+                    <Typography variant="caption" component="div">
+                      • Nova senha deve ser diferente da senha atual
+                    </Typography>
+                  </Alert>
+
+                  <Stack spacing={2}>
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="Senha Atual *"
+                      value={senhaData.senhaAtual}
+                      onChange={(e) => handleSenhaChange('senhaAtual', e.target.value)}
+                      error={!!errors.senhaAtual}
+                      helperText={errors.senhaAtual || 'Digite sua senha atual para confirmar'}
+                      size="small"
+                      autoComplete="current-password"
+                      required
+                    />
+
+                    <Divider sx={{ my: 1 }}>
+                      <Chip label="Nova Senha" size="small" />
+                    </Divider>
+
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="Nova Senha *"
+                      value={senhaData.novaSenha}
+                      onChange={(e) => handleSenhaChange('novaSenha', e.target.value)}
+                      error={!!errors.novaSenha}
+                      helperText={
+                        errors.novaSenha ||
+                        `${senhaData.novaSenha.length}/6 caracteres mínimos`
+                      }
+                      size="small"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="Confirmar Nova Senha *"
+                      value={senhaData.confirmacaoSenha}
+                      onChange={(e) => handleSenhaChange('confirmacaoSenha', e.target.value)}
+                      error={!!errors.confirmacaoSenha}
+                      helperText={
+                        errors.confirmacaoSenha ||
+                        (senhaData.confirmacaoSenha && senhaData.novaSenha === senhaData.confirmacaoSenha
+                          ? '✓ Senhas coincidem'
+                          : 'Digite a nova senha novamente')
+                      }
+                      size="small"
+                      autoComplete="new-password"
+                      required
+                    />
+                  </Stack>
+                </Box>
               )}
 
               {!changingPassword && (
@@ -509,8 +556,7 @@ const PerfilPage: React.FC = () => {
               )}
             </Paper>
           </Stack>
-        </Grid>
-      </Grid>
+      </Box>
     </Box>
   );
 };
