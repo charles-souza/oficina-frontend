@@ -18,6 +18,7 @@ interface AuthContextType {
   user: User | null;
   roles: string[];
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (token: string, roles: string) => void;
   logout: () => void;
   hasRole: (role: string) => boolean;
@@ -33,6 +34,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize from localStorage on mount
   useEffect(() => {
@@ -52,6 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (decoded.exp * 1000 < Date.now()) {
           console.log('[AuthContext] Token EXPIRADO, fazendo logout');
           logout();
+          setIsLoading(false);
           return;
         }
 
@@ -70,6 +73,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       console.log('[AuthContext] Sem token ou roles - usuário NÃO autenticado');
     }
+
+    setIsLoading(false);
+    console.log('[AuthContext] Inicialização completa');
   }, []);
 
   const login = (token: string, rolesString: string) => {
@@ -127,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         roles,
         isAuthenticated,
+        isLoading,
         login,
         logout,
         hasRole,
